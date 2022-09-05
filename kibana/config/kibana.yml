@@ -1,0 +1,7 @@
+server.name: kibana
+server.host: ${ELK_KIBANA_HOST}
+
+elasticsearch.hosts: [ "http://${ELK_ELASTIC_HOST}:9200" ]
+monitoring.ui.container.elasticsearch.enabled: true
+elasticsearch.username: kibana_system
+elasticsearch.password: ${ELK_KIBANA_PASSWORD}

@@ -135,3 +135,5 @@ elasticsearch/nodes
 elasticsearch/*.lock
 elasticsearch/_state/
 elasticsearch/indices
+
+src/steam/migrations

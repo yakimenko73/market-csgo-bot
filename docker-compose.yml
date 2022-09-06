@@ -7,6 +7,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     env_file: .env.prod
+    volumes:
+      - ./data:/data:z
     ports:
       - "80:80"
       - "45981:45981"
@@ -90,3 +92,4 @@ networks:
 volumes:
   setup:
   elasticsearch:
+  app:

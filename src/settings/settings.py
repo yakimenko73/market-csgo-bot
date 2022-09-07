@@ -31,8 +31,19 @@ class ELKSettings:
         return self
 
 
+@envclass
+@dataclass
+class MarketSettings:
+    host: str = 'market.csgo.com'
+
+    def from_env(self):
+        load_env(self, 'MARKET')
+        return self
+
+
 SERVER_SETTINGS = DjangoSettings().from_env()
 ELK_SETTINGS = ELKSettings().from_env()
+MARKET_SETTINGS = MarketSettings().from_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -60,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'logs',
     'steam',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [

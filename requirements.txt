@@ -3,6 +3,7 @@ backports.zoneinfo==0.2.1
 Django==4.1
 envclasses==0.2.8
 gunicorn==20.1.0
+JSON-log-formatter==0.5.1
 mypy-extensions==0.4.3
 python-logstash==0.4.8
 PyYAML==6.0

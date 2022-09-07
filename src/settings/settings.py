@@ -125,10 +125,11 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': '{asctime}|{levelname}|{name:s}|{thread:d}|{message}',
-            'style': '{',
-            'datefmt': '%Y-%m-%d %H:%M:%S',
+        'json': {
+            # 'format': '{asctime}|{levelname}|{name:s}|{thread:d}|{message}',
+            # 'style': '{',
+            # 'datefmt': '%Y-%m-%d %H:%M:%S',
+            '()': 'json_log_formatter.JSONFormatter',
         },
         'simple': {
             'format': '[{asctime}]|{levelname}|{message}',
@@ -145,7 +146,7 @@ LOGGING = {
         'logstash': {
             'level': 'INFO',
             'class': 'settings.logging.handlers.StrTCPLogstashHandler',
-            'formatter': 'verbose',
+            'formatter': 'json',
             'host': ELKSettings.logstash_host,
             'port': 50000,
             'version': 1,

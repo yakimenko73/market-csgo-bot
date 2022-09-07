@@ -126,26 +126,30 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'json': {
-            # 'format': '{asctime}|{levelname}|{name:s}|{thread:d}|{message}',
-            # 'style': '{',
-            # 'datefmt': '%Y-%m-%d %H:%M:%S',
             '()': 'json_log_formatter.JSONFormatter',
         },
         'simple': {
-            'format': '[{asctime}]|{levelname}|{message}',
+            'format': '[{asctime}] {levelname} {name} {message}',
             'style': '{',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
+    },
+    'filters': {
+        'hide_static_files': {
+            '()': 'settings.logging.filters.SkipStaticFilter'
+        }
     },
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'filters': ['hide_static_files'],
             'formatter': 'simple'
         },
         'logstash': {
             'level': 'INFO',
             'class': 'settings.logging.handlers.StrTCPLogstashHandler',
+            'filters': ['hide_static_files'],
             'formatter': 'json',
             'host': ELKSettings.logstash_host,
             'port': 50000,

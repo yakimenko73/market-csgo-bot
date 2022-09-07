@@ -138,3 +138,4 @@ elasticsearch/indices
 elasticsearch/.es_temp_file
 
 src/steam/migrations
+src/settings/logging/__init__.py

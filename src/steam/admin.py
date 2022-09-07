@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from rangefilter.filters import DateTimeRangeFilter
 
-from .models import Account, AccountItem
+from .models import Account, Item, ItemsFile
 
 HREF_URI_PATTERN = "<a href='{uri}' target=_blank>{uri}</a>"
 
@@ -27,7 +27,7 @@ class AccountAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(AccountItem)
+@admin.register(Item)
 class AccountItemAdmin(admin.ModelAdmin):
     list_display = (
         'account',
@@ -70,3 +70,6 @@ class AccountItemAdmin(admin.ModelAdmin):
     @staticmethod
     def show_market_ru_link(obj):
         return format_html(HREF_URI_PATTERN, uri=obj.market_ru_link)
+
+
+admin.site.register(ItemsFile)

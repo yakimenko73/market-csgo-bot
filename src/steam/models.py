@@ -1,15 +1,17 @@
 import json
-from datetime import datetime
+import logging
 
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
+from django.core.validators import FileExtensionValidator
 from django.db import models
+from pydantic import ValidationError
 
 from .domain.enums import Status, HoldStatus, Place, CorrectName
+from .domain.models import ItemModel
+
+logger = logging.getLogger(__name__)
 
 MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?s=price&r=&q=&search='
-
-PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 
 
 class Account(models.Model):
@@ -65,25 +67,32 @@ class ItemsFile(models.Model):
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:
             raw = json.load(f)
+            error_counter = 0
             for item in raw['items']:
                 accounts = Account.objects.filter(login=item['bot'])
                 if accounts.exists():
-                    print(item)
-                    Item(
-                        account=accounts.first(),
-                        market_hash_name=item['market_hash_name'],
-                        market_ru_name=item['ru_name'],
-                        google_price_usd=item['google_price_usd'],
-                        google_drive_time=datetime.fromtimestamp(item['google_drive_time'] / 1000),
-                        steam_price_usd=item['steam_price_usd'],
-                        steam_time=datetime.fromtimestamp(item['steam_time'] / 1000),
-                        status=item['status'],
-                        place=item['place'],
-                        hold=datetime.fromtimestamp(item['hold'] / 1000),
-                        hold_status=item['hold_status'],
-                        asset_id=item['asset_id'],
-                        trade_id=item['trade_id'],
-                        drive_discount=item['drive_discount'],
-                        drive_discount_percent=item['drive_discount_percent'],
-                        correct_name=item['correct_name'],
-                    ).save()
+                    if model := self._parse_model(item):
+                        self._save_item(accounts.first(), model)
+                    else:
+                        error_counter += 1
+
+            logger.info(f'Parsing validation problems was received: {error_counter}')
+
+    @staticmethod
+    def _parse_model(item: dict) -> ItemModel:
+        model = None
+        try:
+            model = ItemModel(**item)
+        except ValidationError as ex:
+            print(ex)
+            logger.warning(f'Parsing validation error', extra={'account': item['bot'], 'error': ex.errors()[0]})
+
+        return model
+
+    @staticmethod
+    def _save_item(account: Account, item: ItemModel):
+        Item(
+            account=account,
+            market_ru_name=item.ru_name,
+            **item.dict(exclude={'owner_bot', 'bot', 'ru_name'})
+        ).save()

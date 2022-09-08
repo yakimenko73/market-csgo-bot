@@ -15,6 +15,7 @@ class Status(BaseEnum):
 
 
 class HoldStatus(BaseEnum):
+    Undefined = 67108864
     Hold = 33554432
     NotAtHold = 16777216
 

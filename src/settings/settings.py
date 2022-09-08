@@ -175,7 +175,11 @@ LOGGING = {
         'django.server': {
             'handlers': ['logstash', 'console'],
             'level': 'INFO',
-        }
+        },
+        'steam.models': {
+            'handlers': ['logstash', 'console'],
+            'level': 'DEBUG',
+        },
     }
 }
 

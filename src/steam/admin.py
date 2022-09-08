@@ -4,7 +4,7 @@ from rangefilter.filters import DateTimeRangeFilter
 
 from .models import Account, Item, ItemsFile
 
-HREF_URI_PATTERN = "<a href='{uri}' target=_blank>{uri}</a>"
+HREF_URI_PATTERN = "<a href='{uri}' target=_blank>{text}</a>"
 
 
 @admin.register(Account)
@@ -32,7 +32,6 @@ class AccountItemAdmin(admin.ModelAdmin):
     list_display = (
         'account',
         'market_hash_name',
-        'market_ru_name',
         'show_market_eu_link',
         'show_market_ru_link',
         'google_price_usd',
@@ -65,11 +64,11 @@ class AccountItemAdmin(admin.ModelAdmin):
 
     @staticmethod
     def show_market_eu_link(obj):
-        return format_html(HREF_URI_PATTERN, uri=obj.market_eu_link)
+        return format_html(HREF_URI_PATTERN, uri=obj.market_eu_link, text='EU')
 
     @staticmethod
     def show_market_ru_link(obj):
-        return format_html(HREF_URI_PATTERN, uri=obj.market_ru_link)
+        return format_html(HREF_URI_PATTERN, uri=obj.market_ru_link, text='RU')
 
 
 admin.site.register(ItemsFile)

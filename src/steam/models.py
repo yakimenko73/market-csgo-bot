@@ -4,10 +4,9 @@ import logging
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from pydantic import ValidationError
 
 from .domain.enums import Status, HoldStatus, Place, CorrectName
-from .domain.models import ItemModel
+from .parsers import ItemParser
 
 logger = logging.getLogger(__name__)
 
@@ -67,32 +66,13 @@ class ItemsFile(models.Model):
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:
             raw = json.load(f)
-            error_counter = 0
+            parsed_counter = 0
+            parser = ItemParser(raw['u'])
             for item in raw['items']:
                 accounts = Account.objects.filter(login=item['bot'])
                 if accounts.exists():
-                    if model := self._parse_model(item):
-                        self._save_item(accounts.first(), model)
-                    else:
-                        error_counter += 1
+                    if model := parser.parse_model(item):
+                        Item(account=accounts.first(), **model.to_dict()).save()
+                        parsed_counter += 1
 
-            logger.info(f'Parsing validation problems was received: {error_counter}')
-
-    @staticmethod
-    def _parse_model(item: dict) -> ItemModel:
-        model = None
-        try:
-            model = ItemModel(**item)
-        except ValidationError as ex:
-            print(ex)
-            logger.warning(f'Parsing validation error', extra={'account': item['bot'], 'error': ex.errors()[0]})
-
-        return model
-
-    @staticmethod
-    def _save_item(account: Account, item: ItemModel):
-        Item(
-            account=account,
-            market_ru_name=item.ru_name,
-            **item.dict(exclude={'owner_bot', 'bot', 'ru_name'})
-        ).save()
+            logger.info(f'Found {len(raw["items"])} items. Parsed: {parsed_counter}')

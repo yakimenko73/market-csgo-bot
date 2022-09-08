@@ -176,7 +176,7 @@ LOGGING = {
             'handlers': ['logstash', 'console'],
             'level': 'INFO',
         },
-        'steam.models': {
+        'steam': {
             'handlers': ['logstash', 'console'],
             'level': 'DEBUG',
         },

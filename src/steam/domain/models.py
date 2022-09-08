@@ -28,3 +28,8 @@ class ItemModel(BaseModel):
 
     class Config:
         use_enum_values = True
+
+    def to_dict(self) -> dict:
+        dict_ = self.dict(exclude={'owner_bot', 'bot', 'ru_name'})
+        dict_['market_ru_name'] = self.ru_name
+        return dict_

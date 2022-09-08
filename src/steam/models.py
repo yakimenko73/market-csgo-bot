@@ -6,6 +6,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 
 from .domain.enums import Status, HoldStatus, Place, CorrectName
+from .domain.models import ItemsJsonModel
 from .parsers import ItemParser
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ class Item(models.Model):
     place = models.IntegerField(choices=Place.to_list(), default=None)
     hold = models.DateTimeField()
     hold_status = models.BigIntegerField(choices=HoldStatus.to_list(), default=None)
-    asset_id = models.CharField(max_length=30)
+    asset_id = models.CharField(max_length=30, primary_key=True)
     trade_id = models.CharField(max_length=30)
     drive_discount = models.CharField(max_length=30)
     drive_discount_percent = models.CharField(max_length=12)
@@ -66,13 +67,16 @@ class ItemsFile(models.Model):
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:
             raw = json.load(f)
+            json_model = ItemsJsonModel(**raw)
+
+            parser = ItemParser(json_model.u)
             parsed_counter = 0
-            parser = ItemParser(raw['u'])
-            for item in raw['items']:
+
+            for item in json_model.items:
                 accounts = Account.objects.filter(login=item['bot'])
                 if accounts.exists():
                     if model := parser.parse_model(item):
                         Item(account=accounts.first(), **model.to_dict()).save()
                         parsed_counter += 1
 
-            logger.info(f'Found {len(raw["items"])} items. Parsed: {parsed_counter}')
+            logger.info(f'Found {len(json_model.items)} items. Parsed: {parsed_counter}')

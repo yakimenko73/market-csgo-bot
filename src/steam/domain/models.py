@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import List
 
 from pydantic import BaseModel
 
@@ -7,7 +8,6 @@ from .enums import HoldStatus, Status, Place, CorrectName
 
 
 class ItemModel(BaseModel):
-    id: int = None
     owner_bot: str
     bot: str
     market_hash_name: str
@@ -33,3 +33,9 @@ class ItemModel(BaseModel):
         dict_ = self.dict(exclude={'owner_bot', 'bot', 'ru_name'})
         dict_['market_ru_name'] = self.ru_name
         return dict_
+
+
+class ItemsJsonModel(BaseModel):
+    items: List[dict]
+    # currency rate
+    u: float

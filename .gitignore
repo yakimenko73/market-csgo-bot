@@ -137,6 +137,8 @@ elasticsearch/_state/
 elasticsearch/indices
 elasticsearch/.es_temp_file
 
-src/steam/migrations
-src/settings/logging/__init__.py
 src/static
+src/steam/migrations
+src/steam/domain/__init__.py
+src/settings/__init__.py
+src/settings/logging/__init__.py

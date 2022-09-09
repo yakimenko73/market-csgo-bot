@@ -3,7 +3,8 @@ backports.zoneinfo==0.2.1
 defusedxml==0.7.1
 diff-match-patch==20200713
 Django==4.1
-django-admin-rangefilter==0.8.8
+django-daterangefilter @ git+https://github.com/yakimenko73/django-daterange-filter@84b65862f874494080bde418b98040a792195060
+django-grappelli==3.0.3
 envclasses==0.2.8
 et-xmlfile==1.1.0
 gunicorn==20.1.0
@@ -17,7 +18,7 @@ python-logstash==0.4.8
 PyYAML==6.0
 sqlparse==0.4.2
 tablib==3.2.1
-typing-extensions==4.3.0
 typing-inspect==0.8.0
+typing_extensions==4.3.0
 xlrd==2.0.1
 xlwt==1.3.0

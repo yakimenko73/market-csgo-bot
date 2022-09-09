@@ -1,10 +1,11 @@
+from daterangefilter.filters import DateRangeFilter
 from django.contrib import admin
-from django.utils.html import format_html
-from rangefilter.filters import DateTimeRangeFilter
+from django.utils.html import format_html_join, format_html
 
 from .models import Account, Item, ItemsFile
 
-HREF_URI_PATTERN = "<a href='{uri}' target=_blank>{text}</a>"
+HREF_URI_PATTERN = "<a href='{}' target=_blank>{}</a>"
+MARKET_HASH_NAME_PATTERN = "{links} {name}"
 
 
 @admin.register(Account)
@@ -31,9 +32,7 @@ class AccountAdmin(admin.ModelAdmin):
 class AccountItemAdmin(admin.ModelAdmin):
     list_display = (
         'account',
-        'market_hash_name',
-        'show_market_eu_link',
-        'show_market_ru_link',
+        'market_name',
         'google_price_usd',
         'google_drive_time',
         'steam_price_usd',
@@ -52,8 +51,8 @@ class AccountItemAdmin(admin.ModelAdmin):
         'correct_name',
         'status',
         'hold_status',
-        ('google_drive_time', DateTimeRangeFilter),
-        ('hold', DateTimeRangeFilter),
+        ('google_drive_time', DateRangeFilter),
+        ('hold', DateRangeFilter),
     )
     search_fields = (
         'account__login',
@@ -63,12 +62,11 @@ class AccountItemAdmin(admin.ModelAdmin):
     )
 
     @staticmethod
-    def show_market_eu_link(obj):
-        return format_html(HREF_URI_PATTERN, uri=obj.market_eu_link, text='EU')
+    def market_name(obj):
+        links = [(obj.market_eu_link, 'EU'), (obj.market_ru_link, 'RU')]
+        html_links = format_html_join('\n', HREF_URI_PATTERN, (link for link in links))
 
-    @staticmethod
-    def show_market_ru_link(obj):
-        return format_html(HREF_URI_PATTERN, uri=obj.market_ru_link, text='RU')
+        return format_html(MARKET_HASH_NAME_PATTERN, links=html_links, name=obj.market_hash_name)
 
 
 admin.site.register(ItemsFile)

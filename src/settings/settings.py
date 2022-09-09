@@ -63,15 +63,17 @@ ALLOWED_HOSTS = [SERVER_SETTINGS.host]
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.contenttypes',
+    'grappelli.dashboard',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'logs',
     'steam',
-    'rangefilter',
+    'daterangefilter',
 ]
 
 MIDDLEWARE = [
@@ -198,6 +200,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -206,3 +209,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Disable TooManyFieldsSent
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+# Grappelli settings - https://django-grappelli.readthedocs.io/en/latest/
+GRAPPELLI_ADMIN_TITLE = 'Tm-bot admin'
+GRAPPELLI_CLEAN_INPUT_TYPES = True

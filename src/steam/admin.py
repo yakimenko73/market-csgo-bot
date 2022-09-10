@@ -65,10 +65,6 @@ class AccountItemAdmin(admin.ModelAdmin):
         'trade_id',
     )
 
-    def __init__(self, model, admin_site):
-        super().__init__(model, admin_site)
-        self._currency_rate = Settings.objects.first().currency_rate
-
     def market_name(self, obj):
         links = [(obj.market_eu_link, 'EU'), (obj.market_ru_link, 'RU')]
         html_links = format_html_join('\n', HREF_URI_PATTERN, (link for link in links))
@@ -76,16 +72,18 @@ class AccountItemAdmin(admin.ModelAdmin):
         return format_html(MARKET_HASH_NAME_PATTERN, links=html_links, name=obj.market_hash_name)
 
     def google_price(self, obj):
+        currency_rate = Settings.objects.first().currency_rate
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=round(obj.google_price_usd * self._currency_rate, 2),
+            ru_price=round(obj.google_price_usd * currency_rate, 2),
             usd_price=obj.google_price_usd
         )
 
     def steam_price(self, obj):
+        currency_rate = Settings.objects.first().currency_rate
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=obj.steam_price_usd * Decimal(self._currency_rate),
+            ru_price=obj.steam_price_usd * Decimal(currency_rate),
             usd_price=obj.steam_price_usd
         )
 

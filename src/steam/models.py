@@ -47,8 +47,6 @@ class Item(models.Model):
     drive_discount = models.CharField(max_length=30)
     drive_discount_percent = models.CharField(max_length=12)
     correct_name = models.IntegerField(choices=CorrectName.to_list(), default=None)
-    item_price_usd = models.DecimalField(max_digits=6, decimal_places=2, blank=True, default=0)
-    item_price_ru = models.DecimalField(max_digits=6, decimal_places=2, blank=True, default=0)
 
     def save(self, *args, **kwargs):
         if not self.market_eu_link:
@@ -67,16 +65,8 @@ class ItemsFile(models.Model):
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:
             raw = json.load(f)
-            json_model = ItemsJsonModel(**raw)
+            accounts = Account.objects.all()
+            parser = ItemParser(ItemsJsonModel(**raw))
+            items = parser.parse_for_accounts(list(accounts.values_list('login', flat=True)))
 
-            parser = ItemParser(json_model.u)
-            parsed_counter = 0
-
-            for item in json_model.items:
-                accounts = Account.objects.filter(login=item['bot'])
-                if accounts.exists():
-                    if model := parser.parse_model(item):
-                        Item(account=accounts.first(), **model.to_dict()).save()
-                        parsed_counter += 1
-
-            logger.info(f'Found {len(json_model.items)} items. Parsed: {parsed_counter}')
+            [Item(account=accounts.get(login=item.bot), **item.to_dict()).save() for item in items]

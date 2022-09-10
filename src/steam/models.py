@@ -4,6 +4,7 @@ import logging
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from settings.models import Settings
 
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel
@@ -66,7 +67,9 @@ class ItemsFile(models.Model):
         with self.file.open('r') as f:
             raw = json.load(f)
             accounts = Account.objects.all()
-            parser = ItemParser(ItemsJsonModel(**raw))
+            parser = ItemParser(json_model := ItemsJsonModel(**raw))
             items = parser.parse_for_accounts(list(accounts.values_list('login', flat=True)))
 
             [Item(account=accounts.get(login=item.bot), **item.to_dict()).save() for item in items]
+
+            Settings.objects.all().update(currency_rate=json_model.u)

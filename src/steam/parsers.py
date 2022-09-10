@@ -11,8 +11,6 @@ logger = logging.getLogger(__name__)
 class ItemParser:
     def __init__(self, json_model: ItemsJsonModel):
         self._items = json_model.items
-        # TODO: Impl in next sprint
-        self._currency_rate = json_model.u
 
     def parse_for_accounts(self, accounts_names: List[str]) -> List[ItemModel]:
         parsed_counter = 0

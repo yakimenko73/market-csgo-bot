@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'logs',
     'steam',
     'daterangefilter',
+    'settings',
 ]
 
 MIDDLEWARE = [

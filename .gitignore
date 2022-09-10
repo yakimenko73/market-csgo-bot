@@ -141,4 +141,5 @@ src/static
 src/steam/migrations
 src/steam/domain/__init__.py
 src/settings/__init__.py
+src/settings/migrations
 src/settings/logging/__init__.py

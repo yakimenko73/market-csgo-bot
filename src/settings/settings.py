@@ -1,49 +1,40 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from envclasses import envclass, load_env
+
+from src.common.utils import BaseSettings
 
 
 @envclass
 @dataclass
-class DjangoSettings:
+class DjangoSettings(BaseSettings):
     host: str = 'localhost'
     port: int = 8000
     debug: int = 1
     secret_key: str = 'super-duper-secret-key'
 
-    def from_env(self):
-        load_env(self, 'DJANGO')
-        return self
-
 
 @envclass
 @dataclass
-class ELKSettings:
+class ELKSettings(BaseSettings):
     version: str = '8.3.1'
     elastic_host: str = 'localhost'
     logstash_host: str = 'localhost'
     kibana_host: str = 'localhost'
 
-    def from_env(self):
-        load_env(self, 'ELK')
-        return self
-
 
 @envclass
 @dataclass
-class MarketSettings:
+class MarketSettings(BaseSettings):
     host: str = 'market.csgo.com'
 
-    def from_env(self):
-        load_env(self, 'MARKET')
-        return self
 
-
-SERVER_SETTINGS = DjangoSettings().from_env()
-ELK_SETTINGS = ELKSettings().from_env()
-MARKET_SETTINGS = MarketSettings().from_env()
+SERVER_SETTINGS = DjangoSettings().from_env('DJANGO')
+ELK_SETTINGS = ELKSettings().from_env('ELK')
+MARKET_SETTINGS = MarketSettings().from_env('MARKET')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,10 +61,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'settings',
+    'daterangefilter',
     'logs',
     'steam',
-    'daterangefilter',
-    'settings',
 ]
 
 MIDDLEWARE = [

@@ -1,8 +1,9 @@
 from decimal import Decimal
 
-from common.models import SingletonModel
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+
+from src.common.models import SingletonModel
 
 PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 

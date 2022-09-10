@@ -27,8 +27,6 @@ class AccountAdmin(admin.ModelAdmin):
         'steam_api',
         'google_drive_id',
         'proxy',
-        'shared_secret',
-        'identity_secret',
     )
 
 

@@ -1,11 +1,4 @@
-from enum import Enum
-from typing import Tuple, List
-
-
-class BaseEnum(Enum):
-    @classmethod
-    def to_list(cls) -> List[Tuple[int, str]]:
-        return [(member.value, member.name) for member in cls]
+from src.common.utils import BaseEnum
 
 
 class Status(BaseEnum):

@@ -66,8 +66,8 @@ class ItemsFile(models.Model):
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:
             raw = json.load(f)
-            accounts = Account.objects.all()
             parser = ItemParser(json_model := ItemsJsonModel(**raw))
+            accounts = Account.objects.all()
             items = parser.parse_for_accounts(list(accounts.values_list('login', flat=True)))
 
             [Item(account=accounts.get(login=item.bot), **item.to_dict()).save() for item in items]

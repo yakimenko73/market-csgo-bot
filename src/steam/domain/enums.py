@@ -1,4 +1,4 @@
-from src.common.utils import BaseEnum
+from common.utils import BaseEnum
 
 
 class Status(BaseEnum):

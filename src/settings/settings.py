@@ -5,7 +5,7 @@ from typing import Any
 
 from envclasses import envclass, load_env
 
-from src.common.utils import BaseSettings
+from common.utils import BaseSettings
 
 
 @envclass

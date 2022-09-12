@@ -1,18 +1,14 @@
 import json
-import logging
+from itertools import repeat
 
-from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
-
-from .domain.enums import Status, HoldStatus, Place, CorrectName
-from .domain.models import ItemsJsonModel
-from .parsers import ItemParser
+from django.db.models import QuerySet
 from settings.models import BotPreferences
 
-logger = logging.getLogger(__name__)
-
-MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?s=price&r=&q=&search='
+from .domain.enums import Status, HoldStatus, Place, CorrectName
+from .domain.models import ItemsJsonModel, ItemModel
+from .parsers import ItemParser
 
 
 class Account(models.Model):
@@ -33,8 +29,6 @@ class Item(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     market_hash_name = models.CharField(max_length=120)
     market_ru_name = models.CharField(max_length=120)
-    market_eu_link = models.CharField(max_length=120, blank=True)
-    market_ru_link = models.CharField(max_length=120, blank=True)
     google_price_usd = models.FloatField()
     google_drive_time = models.DateTimeField()
     steam_price_usd = models.DecimalField(max_digits=6, decimal_places=2)
@@ -48,13 +42,6 @@ class Item(models.Model):
     drive_discount = models.CharField(max_length=30)
     drive_discount_percent = models.CharField(max_length=12)
     correct_name = models.IntegerField(choices=CorrectName.to_list(), default=None)
-
-    def save(self, *args, **kwargs):
-        if not self.market_eu_link:
-            self.market_eu_link = MARKET_LINK + self.market_hash_name
-        if not self.market_ru_link:
-            self.market_ru_link = MARKET_LINK + self.market_ru_name
-        super(Item, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.market_hash_name
@@ -70,6 +57,10 @@ class ItemsFile(models.Model):
             accounts = Account.objects.all()
             items = parser.parse_for_accounts(list(accounts.values_list('login', flat=True)))
 
-            [Item(account=accounts.get(login=item.bot), **item.to_dict()).save() for item in items]
+            map(self._save_item, items, repeat(accounts))
 
             BotPreferences.objects.all().update(currency_rate=json_model.u)
+
+    @staticmethod
+    def _save_item(item: ItemModel, accounts: QuerySet[Account]):
+        Item(account=accounts.get(login=item.bot), **item.to_dict()).save()

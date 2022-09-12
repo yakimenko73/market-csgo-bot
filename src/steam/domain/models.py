@@ -38,7 +38,7 @@ class ItemModel(BaseModel):
         dict_['market_ru_name'] = self.ru_name
         return dict_
 
-    def get_names(self):
+    def get_names(self) -> List[str]:
         dict_ = self.to_dict()
         dict_.pop('asset_id')
         return list(dict_.keys())

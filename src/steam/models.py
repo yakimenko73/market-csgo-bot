@@ -19,6 +19,7 @@ class Account(models.Model):
     identity_secret = models.CharField(max_length=99)
     google_drive_id = models.CharField(max_length=99)
     proxy = models.CharField(max_length=99)
+    is_on = models.BooleanField(default=False)
 
     def __str__(self):
         return self.login
@@ -33,7 +34,7 @@ class Item(models.Model):
     steam_price_usd = models.DecimalField(max_digits=6, decimal_places=2)
     steam_time = models.DateTimeField()
     status = models.BigIntegerField(choices=Status.to_list(), default=Status.New.value)
-    place = models.IntegerField(choices=Place.to_list(), default=None)
+    place = models.IntegerField(choices=Place.to_list(), default=Place.Unknown.value)
     hold = models.DateTimeField()
     hold_status = models.BigIntegerField(choices=HoldStatus.to_list(), default=HoldStatus.Undefined.value)
     asset_id = models.CharField(max_length=30, primary_key=True)

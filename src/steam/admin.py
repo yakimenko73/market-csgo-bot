@@ -3,6 +3,8 @@ from decimal import Decimal
 from daterangefilter.filters import DateRangeFilter
 from django.conf import settings
 from django.contrib import admin
+from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import QuerySet
 from django.utils.html import format_html_join, format_html
 from preferences import preferences
 
@@ -22,6 +24,7 @@ class AccountAdmin(admin.ModelAdmin):
         'steam_api',
         'google_drive_id',
         'proxy',
+        'is_on',
     )
     search_fields = (
         'login',
@@ -30,6 +33,16 @@ class AccountAdmin(admin.ModelAdmin):
         'google_drive_id',
         'proxy',
     )
+    list_filter = ['is_on']
+    actions = ['turn_on_bot_account']
+
+    @admin.action(description='Turn on selected accounts')
+    def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
+        queryset.update(is_on=True)
+
+    @admin.action(description='Turn off selected accounts')
+    def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
+        queryset.update(is_on=False)
 
 
 @admin.register(Item)

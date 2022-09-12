@@ -34,14 +34,14 @@ class AccountAdmin(admin.ModelAdmin):
         'proxy',
     )
     list_filter = ['is_on']
-    actions = ['turn_on_bot_account']
+    actions = ['turn_on_bot_account', 'turn_off_bot_account', ]
 
     @admin.action(description='Turn on selected accounts')
     def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
         queryset.update(is_on=True)
 
     @admin.action(description='Turn off selected accounts')
-    def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
+    def turn_off_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
         queryset.update(is_on=False)
 
 

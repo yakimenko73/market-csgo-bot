@@ -4,11 +4,11 @@ import logging
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
-from settings.models import Settings
 
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel
 from .parsers import ItemParser
+from settings.models import BotPreferences
 
 logger = logging.getLogger(__name__)
 
@@ -72,4 +72,4 @@ class ItemsFile(models.Model):
 
             [Item(account=accounts.get(login=item.bot), **item.to_dict()).save() for item in items]
 
-            Settings.objects.all().update(currency_rate=json_model.u)
+            BotPreferences.objects.all().update(currency_rate=json_model.u)

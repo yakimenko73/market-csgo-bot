@@ -1,12 +1,12 @@
 from django.contrib import admin
+from django.contrib.sites.models import Site
+from preferences.admin import PreferencesAdmin
 
-from .models import Settings
+from .models import BotPreferences
+
+admin.site.unregister(Site)
 
 
-@admin.register(Settings)
-class SettingsAdmin(admin.ModelAdmin):
-    list_display = (
-        'currency_rate',
-        'min_profit',
-        'max_profit',
-    )
+@admin.register(BotPreferences)
+class PreferenceAdmin(PreferencesAdmin):
+    exclude = ['sites']

@@ -3,7 +3,7 @@ from decimal import Decimal
 from daterangefilter.filters import DateRangeFilter
 from django.contrib import admin
 from django.utils.html import format_html_join, format_html
-from settings.models import Settings
+from preferences import preferences
 
 from .models import Account, Item, ItemsFile
 
@@ -70,18 +70,16 @@ class AccountItemAdmin(admin.ModelAdmin):
         return format_html(MARKET_HASH_NAME_PATTERN, links=html_links, name=obj.market_hash_name)
 
     def google_price(self, obj):
-        currency_rate = Settings.objects.first().currency_rate
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=round(obj.google_price_usd * currency_rate, 2),
+            ru_price=round(obj.google_price_usd * preferences.BotPreferences.currency_rate, 2),
             usd_price=obj.google_price_usd
         )
 
     def steam_price(self, obj):
-        currency_rate = Settings.objects.first().currency_rate
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=obj.steam_price_usd * Decimal(currency_rate),
+            ru_price=round(obj.steam_price_usd * Decimal(preferences.BotPreferences.currency_rate), 2),
             usd_price=obj.steam_price_usd
         )
 

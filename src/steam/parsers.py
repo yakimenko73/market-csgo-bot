@@ -31,6 +31,7 @@ class ItemParser:
         try:
             model = ItemModel(**item)
         except ValidationError as ex:
-            logger.warning(f'Parsing validation error', extra={'account': item['bot'], 'error': ex.errors()[0]})
+            logger.warning(f'Parsing validation error for {item["asset_id"]} item',
+                           extra={'account': item['bot'], 'error': ex.errors()[0]})
 
         return model

@@ -1,5 +1,4 @@
 import json
-from itertools import repeat
 
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -33,15 +32,15 @@ class Item(models.Model):
     google_drive_time = models.DateTimeField()
     steam_price_usd = models.DecimalField(max_digits=6, decimal_places=2)
     steam_time = models.DateTimeField()
-    status = models.BigIntegerField(choices=Status.to_list(), default=None)
+    status = models.BigIntegerField(choices=Status.to_list(), default=Status.New.value)
     place = models.IntegerField(choices=Place.to_list(), default=None)
     hold = models.DateTimeField()
-    hold_status = models.BigIntegerField(choices=HoldStatus.to_list(), default=None)
+    hold_status = models.BigIntegerField(choices=HoldStatus.to_list(), default=HoldStatus.Undefined.value)
     asset_id = models.CharField(max_length=30, primary_key=True)
     trade_id = models.CharField(max_length=30, blank=True)
     drive_discount = models.CharField(max_length=30)
     drive_discount_percent = models.CharField(max_length=12)
-    correct_name = models.IntegerField(choices=CorrectName.to_list(), default=None)
+    correct_name = models.IntegerField(choices=CorrectName.to_list(), default=CorrectName.Yes.value)
 
     def __str__(self):
         return self.market_hash_name
@@ -57,10 +56,13 @@ class ItemsFile(models.Model):
             accounts = Account.objects.all()
             items = parser.parse_for_accounts(list(accounts.values_list('login', flat=True)))
 
-            map(self._save_item, items, repeat(accounts))
+            [self._save_item(item, accounts) for item in items]
 
             BotPreferences.objects.all().update(currency_rate=json_model.u)
 
     @staticmethod
     def _save_item(item: ItemModel, accounts: QuerySet[Account]):
-        Item(account=accounts.get(login=item.bot), **item.to_dict()).save()
+        Item(
+            account=accounts.get(login=item.bot),
+            **item.to_dict()
+        ).save(update_fields=item.get_names())

@@ -1,5 +1,10 @@
+import asyncio
 from decimal import Decimal
 
+from aiohttp import ClientSession
+from aiohttp_socks import ProxyConnector
+from asyncsteampy.client import SteamClient
+from common.utils import get_socks5_string
 from daterangefilter.filters import DateRangeFilter
 from django.conf import settings
 from django.contrib import admin
@@ -14,6 +19,24 @@ HREF_URI_PATTERN = "<a href='{}' target=_blank>{}</a>"
 MARKET_HASH_NAME_PATTERN = "{links} {name}"
 ITEM_PRICE_PATTERN = "<text>{ru_price}₽({usd_price}$)</text>"
 MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?s=price&r=&q=&search='
+
+
+async def get_steam_client(account: Account):
+    steam_guard = {
+        "steamid": account.steam_id,
+        "shared_secret": account.shared_secret,
+        "identity_secret": account.identity_secret,
+    }
+    connector = ProxyConnector.from_url(get_socks5_string(account.proxy))
+    session = ClientSession(connector=connector)
+
+    return SteamClient(
+        account.login,
+        account.password,
+        steam_guard,
+        api_key=account.steam_api,
+        session=session
+    )
 
 
 @admin.register(Account)
@@ -38,6 +61,10 @@ class AccountAdmin(admin.ModelAdmin):
 
     @admin.action(description='Turn on selected accounts')
     def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
+        account = queryset.first()
+
+        asyncio.run(get_steam_client(account))
+
         queryset.update(is_on=True)
 
     @admin.action(description='Turn off selected accounts')

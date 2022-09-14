@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .enums import HoldStatus, Status, Place, CorrectName
 
@@ -48,3 +48,34 @@ class ItemsJsonModel(BaseModel):
     items: List[dict]
     # currency rate
     u: float
+
+
+class SteamGuard(BaseModel):
+    steamid: str = Field(alias='steam_id')
+    shared_secret: str
+    identity_secret: str
+
+
+class SteamCredentials(BaseModel):
+    login: str
+    password: str
+    api_key: str = Field(alias='steam_api')
+
+
+class ProxyCredentials(BaseModel):
+    scheme: str
+    ip: str
+    port: int
+    user: str
+    password: str
+
+    @staticmethod
+    def parse_str(raw_str: str, scheme: str = 'socks5'):
+        ip, port, user, password = raw_str.split(':')
+        return ProxyCredentials(
+            scheme=scheme,
+            ip=ip,
+            port=port,
+            user=user,
+            password=password
+        )

@@ -30,5 +30,8 @@ class SteamApi:
         await self._client.close()
         logger.info('Steam logout complete', extra={'account': self._bot_name})
 
+    async def get_profile(self, steam_id: str) -> dict:
+        return await self._client.get_profile(steam_id)
+
     def logged_in(self) -> bool:
         return self._client.was_login_executed

@@ -1,6 +1,7 @@
 import asyncio
 from decimal import Decimal
 
+from bot.services import BotService
 from daterangefilter.filters import DateRangeFilter
 from django.conf import settings
 from django.contrib import admin
@@ -10,7 +11,6 @@ from django.utils.html import format_html_join, format_html
 from preferences import preferences
 
 from .models import Account, Item, ItemsFile
-from bot.services import BotService
 
 HREF_URI_PATTERN = "<a href='{}' target=_blank>{}</a>"
 MARKET_HASH_NAME_PATTERN = "{links} {name}"
@@ -39,13 +39,9 @@ class AccountAdmin(admin.ModelAdmin):
     actions = ['turn_on_bot_account', 'turn_off_bot_account', ]
 
     @admin.action(description='Turn on selected accounts')
-    def turn_on_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
-        account = queryset.first()
-
-        bot_service = BotService(account)
-        asyncio.run(bot_service.run_workflow())
-
-        queryset.update(is_on=True)
+    def turn_on_bot_account(self, request: WSGIRequest, accounts: QuerySet[Account]):
+        asyncio.run(BotService.run_bots(list(accounts)))
+        accounts.update(is_on=True)
 
     @admin.action(description='Turn off selected accounts')
     def turn_off_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):

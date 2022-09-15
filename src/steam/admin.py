@@ -1,7 +1,8 @@
 import asyncio
+import threading
 from decimal import Decimal
 
-from bot.services import BotService
+from bot.manager import BotManager
 from daterangefilter.filters import DateRangeFilter
 from django.conf import settings
 from django.contrib import admin
@@ -20,6 +21,10 @@ MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?s=price&r=&q=&search='
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
+    def __init__(self, model, admin_site):
+        self._bot_manager = BotManager()
+        super().__init__(model, admin_site)
+
     list_display = (
         'login',
         'steam_id',
@@ -40,12 +45,21 @@ class AccountAdmin(admin.ModelAdmin):
 
     @admin.action(description='Turn on selected accounts')
     def turn_on_bot_account(self, request: WSGIRequest, accounts: QuerySet[Account]):
-        asyncio.run(BotService.run_bots(list(accounts)))
+        thread = threading.Thread(
+            target=lambda: asyncio.run(self._bot_manager.run_bots(accounts.filter(is_on=False))),
+            daemon=True
+        )
+        thread.start()
+
         accounts.update(is_on=True)
 
+        return
+
     @admin.action(description='Turn off selected accounts')
-    def turn_off_bot_account(self, request: WSGIRequest, queryset: QuerySet[Account]):
-        queryset.update(is_on=False)
+    def turn_off_bot_account(self, request: WSGIRequest, accounts: QuerySet[Account]):
+        self._bot_manager.stop_bots(list(accounts))
+        print(self._bot_manager.bots)
+        accounts.update(is_on=False)
 
 
 @admin.register(Item)

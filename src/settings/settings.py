@@ -167,9 +167,9 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django.server': {
+        'django': {
             'handlers': ['logstash', 'console'],
-            'level': 'INFO',
+            'level': 'ERROR',
         },
         'steam': {
             'handlers': ['logstash', 'console'],

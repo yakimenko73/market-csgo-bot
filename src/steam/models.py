@@ -63,7 +63,5 @@ class ItemsFile(models.Model):
 
     @staticmethod
     def _save_item(item: ItemModel, accounts: QuerySet[Account]):
-        Item(
-            account=accounts.get(login=item.bot),
-            **item.to_dict()
-        ).save(update_fields=item.get_names())
+        Item(account=accounts.get(login=item.bot), **item.to_dict()) \
+            .save(update_fields=item.get_names())

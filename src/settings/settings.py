@@ -3,9 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from envclasses import envclass, load_env
-
 from common.utils import BaseSettings
+from envclasses import envclass, load_env
 
 
 @envclass
@@ -173,6 +172,10 @@ LOGGING = {
             'level': 'INFO',
         },
         'steam': {
+            'handlers': ['logstash', 'console'],
+            'level': 'DEBUG',
+        },
+        'bot': {
             'handlers': ['logstash', 'console'],
             'level': 'DEBUG',
         },

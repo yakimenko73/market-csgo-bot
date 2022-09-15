@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List
 
 from pydantic import BaseModel, Field
+from python_socks import ProxyType
 
 from .enums import HoldStatus, Status, Place, CorrectName
 
@@ -60,22 +61,28 @@ class SteamCredentials(BaseModel):
     login: str
     password: str
     api_key: str = Field(alias='steam_api')
+    guard: SteamGuard = None
+
+    def with_guard(self, **kwargs):
+        self.guard = SteamGuard.parse_obj(kwargs)
+
+        return self
 
 
 class ProxyCredentials(BaseModel):
-    scheme: str
-    ip: str
+    proxy_type: ProxyType
+    host: str
     port: int
-    user: str
+    username: str
     password: str
 
     @staticmethod
-    def parse_str(raw_str: str, scheme: str = 'socks5'):
-        ip, port, user, password = raw_str.split(':')
+    def parse_str(raw_str: str, proxy_type: ProxyType = ProxyType.SOCKS5):
+        host, port, username, password = raw_str.split(':')
         return ProxyCredentials(
-            scheme=scheme,
-            ip=ip,
+            proxy_type=proxy_type.value,
+            host=host,
             port=port,
-            user=user,
+            username=username,
             password=password
         )

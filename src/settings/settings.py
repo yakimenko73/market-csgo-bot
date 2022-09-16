@@ -11,6 +11,7 @@ from envclasses import envclass, load_env
 @dataclass
 class DjangoSettings(BaseSettings):
     host: str = 'localhost'
+    server_host: str = '0.0.0.0'
     port: int = 8000
     debug: int = 1
     secret_key: str = 'super-duper-secret-key'
@@ -48,7 +49,7 @@ SECRET_KEY = SERVER_SETTINGS.secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = SERVER_SETTINGS.debug
 
-ALLOWED_HOSTS = [SERVER_SETTINGS.host]
+ALLOWED_HOSTS = [SERVER_SETTINGS.host, SERVER_SETTINGS.server_host]
 
 # Application definition
 

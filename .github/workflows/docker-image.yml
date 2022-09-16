@@ -10,7 +10,7 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag tm-server:$(date +%s)
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1

@@ -13,7 +13,8 @@ COPY /src .
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-CMD python3 manage.py collectstatic
-CMD python3 manage.py makemigrations
-CMD python3 manage.py migrate
+RUN python3 manage.py collectstatic
+RUN python3 manage.py makemigrations
+RUN python3 manage.py migrate
+
 CMD gunicorn --workers 3 --bind $DJANGO_HOST:$DJANGO_PORT settings.wsgi:application

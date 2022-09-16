@@ -3,8 +3,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from common.utils import BaseSettings
 from envclasses import envclass, load_env
+
+from common.utils import BaseSettings
 
 
 @envclass
@@ -38,6 +39,9 @@ MARKET_SETTINGS = MarketSettings().from_env('MARKET')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Site settings
+SITE_ID = 1
 
 # Make data dir for sqlite3
 DATA_DIR = BASE_DIR.parent / 'data'

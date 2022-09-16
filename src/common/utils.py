@@ -1,3 +1,4 @@
+import threading
 from enum import Enum
 from typing import Any, List, Tuple
 
@@ -15,3 +16,10 @@ class BaseEnum(Enum):
     @classmethod
     def to_list(cls) -> List[Tuple[int, str]]:
         return [(member.value, member.name) for member in cls]
+
+
+def use_thread(func):
+    def inner_function(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    threading.Thread(target=inner_function, daemon=True).start()

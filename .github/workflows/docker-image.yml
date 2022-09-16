@@ -8,12 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag tm-server:$(date +%s)
+        run: docker build . --file Dockerfile --tag tm-bot:$(date +%s)
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Push to server
         uses: appleboy/ssh-action@master
         with:

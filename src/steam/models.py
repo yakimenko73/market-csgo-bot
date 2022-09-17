@@ -3,8 +3,8 @@ import json
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import QuerySet
-from settings.models import BotPreferences
 
+from settings.models import BotPreferences
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel, ItemModel
 from .parsers import ItemParser
@@ -64,4 +64,4 @@ class ItemsFile(models.Model):
     @staticmethod
     def _save_item(item: ItemModel, accounts: QuerySet[Account]):
         Item(account=accounts.get(login=item.bot), **item.to_dict()) \
-            .save(update_fields=item.get_names())
+            .save(update_fields=item.get_names(), force_update=True)

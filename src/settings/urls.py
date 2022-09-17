@@ -10,7 +10,7 @@ urlpatterns = [
     path('logs/', include('logs.urls')),
 ]
 
-if not settings.DEBUG:
+if not settings.SERVER_SETTINGS.debug:
     urlpatterns += re_path(
         r'^static/(?P<path>.*)$', serve, dict(document_root=settings.STATIC_ROOT)
     ),

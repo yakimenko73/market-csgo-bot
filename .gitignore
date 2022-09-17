@@ -136,6 +136,7 @@ elasticsearch/*.lock
 elasticsearch/_state/
 elasticsearch/indices
 elasticsearch/.es_temp_file
+elasticsearch/data
 
 src/static
 src/steam/migrations

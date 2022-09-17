@@ -1,6 +1,8 @@
 from django.contrib import admin
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import path, include
+from django.urls import path, include, re_path
+from django.views.static import serve
+
+from settings import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -8,4 +10,7 @@ urlpatterns = [
     path('logs/', include('logs.urls')),
 ]
 
-urlpatterns += staticfiles_urlpatterns()
+if not settings.DEBUG:
+    urlpatterns += re_path(
+        r'^static/(?P<path>.*)$', serve, dict(document_root=settings.STATIC_ROOT)
+    ),

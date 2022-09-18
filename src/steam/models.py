@@ -72,3 +72,6 @@ class ItemsFile(models.Model):
             Item.objects.update_or_create(asset_id=item.asset_id, defaults=dict_)
         except DatabaseError as ex:
             logger.warning(f'Db exception for {item.asset_id} item', extra={'account': item.bot, 'error': ex})
+
+    def __str__(self):
+        return 'Parsed steam items file'

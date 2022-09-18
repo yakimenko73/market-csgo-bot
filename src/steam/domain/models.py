@@ -32,7 +32,7 @@ class ItemModel(BaseModel):
 
     def to_dict(self) -> dict:
         exclude_fields = {'owner_bot', 'bot', 'ru_name', 'asset_id'}
-        if self.status == Status.New.value:
+        if self.status == Status.Check.value:
             exclude_fields.add('status')
 
         dict_ = self.dict(exclude=exclude_fields)

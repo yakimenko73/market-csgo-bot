@@ -138,7 +138,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'json': {
-            '()': 'json_log_formatter.JSONFormatter',
+            '()': 'settings.logging.formatters.LogstashJSONFormatter',
         },
         'simple': {
             'format': '[{asctime}] {levelname} {name} {message}',

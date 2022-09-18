@@ -21,12 +21,12 @@ class BotWorkflow:
         self._steam_api = SteamApi(self._steam_creds, self._session)
 
     async def run(self):
-        logger.info('Trying to start bot workflow...', self._get_log_extra_data())
+        logger.info('Trying to start bot workflow...', extra=self._get_log_extra_data())
         async with self._steam_api as steam:
-            logger.info('Bot workflow start successfully', self._get_log_extra_data())
+            logger.info('Bot workflow start successfully', extra=self._get_log_extra_data())
 
             bot_profile = await steam.get_profile(self._bot.steam_id)
-            logger.info(f'Bot profile: {bot_profile}', self._get_log_extra_data())
+            logger.info(f'Bot profile: {bot_profile}', extra=self._get_log_extra_data())
 
             # TODO: Remove in future
             await self.do_something()
@@ -34,7 +34,7 @@ class BotWorkflow:
     async def do_something(self):
         while True:
             await asyncio.sleep(3)
-            logger.info(f'Bot {self._bot.login} sleeping...', self._get_log_extra_data())
+            logger.info(f'Bot {self._bot.login} sleeping...', extra=self._get_log_extra_data())
 
     # TODO: Move to common package
     def _get_log_extra_data(self) -> dict:

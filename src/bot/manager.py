@@ -20,7 +20,7 @@ class BotManager:
         new_tasks = []
         for bot in bots:
             if bot.login not in self._tasks.keys():
-                logger.info(f'Running bot: {bot.login}', self._get_log_extra_data(bot))
+                logger.info(f'Running bot: {bot.login}', extra=self._get_log_extra_data(bot))
                 new_tasks.append(self._create_task(bot))
 
         try:
@@ -31,7 +31,7 @@ class BotManager:
     def stop_bots(self, bots: List[Account]):
         for bot in bots:
             if bot.login in self._tasks.keys():
-                logger.info(f'Stopping bot: {bot.login}', self._get_log_extra_data(bot))
+                logger.info(f'Stopping bot: {bot.login}', extra=self._get_log_extra_data(bot))
                 self._tasks[bot.login].cancel()
                 self._tasks.pop(bot.login)
 

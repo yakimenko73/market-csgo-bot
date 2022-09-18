@@ -1,13 +1,16 @@
 import json
+import logging
 
 from django.core.validators import FileExtensionValidator
-from django.db import models
+from django.db import models, DatabaseError
 from django.db.models import QuerySet
 
 from settings.models import BotPreferences
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel, ItemModel
 from .parsers import ItemParser
+
+logger = logging.getLogger(__name__)
 
 
 class Account(models.Model):
@@ -40,7 +43,7 @@ class Item(models.Model):
     asset_id = models.CharField(max_length=30, primary_key=True)
     trade_id = models.CharField(max_length=30, blank=True)
     drive_discount = models.CharField(max_length=30)
-    drive_discount_percent = models.CharField(max_length=12)
+    drive_discount_percent = models.CharField(max_length=30)
     correct_name = models.IntegerField(choices=CorrectName.to_list(), default=CorrectName.Yes.value)
 
     def __str__(self):
@@ -63,5 +66,9 @@ class ItemsFile(models.Model):
 
     @staticmethod
     def _save_item(item: ItemModel, accounts: QuerySet[Account]):
-        Item(account=accounts.get(login=item.bot), **item.to_dict()) \
-            .save(update_fields=item.get_names(), force_update=True)
+        dict_ = item.to_dict()
+        dict_['account_id'] = accounts.get(login=item.bot).id
+        try:
+            Item.objects.update_or_create(asset_id=item.asset_id, defaults=dict_)
+        except DatabaseError as ex:
+            logger.warning(f'Db exception for {item.asset_id} item', extra={'account': item.bot, 'error': ex})

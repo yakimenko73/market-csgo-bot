@@ -21,7 +21,7 @@ class ItemModel(BaseModel):
     hold_status: HoldStatus
     status: Status
     place: Place
-    asset_id: str
+    asset_id: str = Field(min_length=1)
     trade_id: str
     drive_discount: str
     drive_discount_percent: str
@@ -31,18 +31,13 @@ class ItemModel(BaseModel):
         use_enum_values = True
 
     def to_dict(self) -> dict:
-        exclude_fields = {'owner_bot', 'bot', 'ru_name'}
+        exclude_fields = {'owner_bot', 'bot', 'ru_name', 'asset_id'}
         if self.status == Status.New.value:
             exclude_fields.add('status')
 
         dict_ = self.dict(exclude=exclude_fields)
         dict_['market_ru_name'] = self.ru_name
         return dict_
-
-    def get_names(self) -> List[str]:
-        dict_ = self.to_dict()
-        dict_.pop('asset_id')
-        return list(dict_.keys())
 
 
 class ItemsJsonModel(BaseModel):

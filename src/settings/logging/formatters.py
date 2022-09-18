@@ -1,7 +1,8 @@
-import json_log_formatter
+from json_log_formatter import JSONFormatter
 
 
-class LogstashJSONFormatter(json_log_formatter.JSONFormatter):
+class LogstashJSONFormatter(JSONFormatter):
     def json_record(self, message, extra, record):
         extra['module'] = record.name
-        return extra
+
+        return super().json_record(message, extra, record)

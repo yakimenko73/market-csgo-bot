@@ -36,7 +36,7 @@ class Item(models.Model):
     google_drive_time = models.DateTimeField()
     steam_price_usd = models.DecimalField(max_digits=6, decimal_places=2)
     steam_time = models.DateTimeField()
-    status = models.BigIntegerField(choices=Status.to_list(), default=Status.New.value)
+    status = models.BigIntegerField(choices=Status.to_list(), default=Status.Check.value)
     place = models.IntegerField(choices=Place.to_list(), default=Place.Unknown.value)
     hold = models.DateTimeField()
     hold_status = models.BigIntegerField(choices=HoldStatus.to_list(), default=HoldStatus.Undefined.value)

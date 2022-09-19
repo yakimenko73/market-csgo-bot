@@ -163,7 +163,7 @@ LOGGING = {
             'class': 'settings.logging.handlers.StrTCPLogstashHandler',
             'filters': ['hide_static_files'],
             'formatter': 'json',
-            'host': ELK_SETTINGS.logstash_host,
+            'host': SERVER_SETTINGS.server_host,
             'port': 50000,
             'version': 1,
             'message_type': 'bot',

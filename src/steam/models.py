@@ -17,10 +17,11 @@ class Account(models.Model):
     login = models.CharField(max_length=99, unique=True)
     password = models.CharField(max_length=30)
     steam_id = models.PositiveBigIntegerField(unique=True)
-    steam_api = models.CharField(max_length=99)
+    steam_api = models.CharField(max_length=99, unique=True)
     shared_secret = models.CharField(max_length=99)
     identity_secret = models.CharField(max_length=99)
-    google_drive_id = models.CharField(max_length=99)
+    market_api_key = models.CharField(max_length=99, unique=True)
+    google_drive_id = models.CharField(max_length=99, unique=True)
     proxy = models.CharField(max_length=99)
     is_on = models.BooleanField(default=False)
 

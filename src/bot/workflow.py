@@ -1,9 +1,12 @@
 import asyncio
 import logging
+from traceback import format_exc as traceback
 
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 from django.forms import model_to_dict
+
+from common.utils import get_log_extra as extra
 from steam.api import SteamApi
 from steam.domain.models import ProxyCredentials, SteamCredentials
 from steam.models import Account
@@ -21,21 +24,20 @@ class BotWorkflow:
         self._steam_api = SteamApi(self._steam_creds, self._session)
 
     async def run(self):
-        logger.info('Trying to start bot workflow...', extra=self._get_log_extra_data())
-        async with self._steam_api as steam:
-            logger.info('Bot workflow start successfully', extra=self._get_log_extra_data())
+        try:
+            logger.info('Trying to start bot workflow...', extra=extra(self._bot.login))
+            async with self._steam_api as steam:
+                logger.info('Bot workflow start successfully', extra=extra(self._bot.login))
 
-            bot_profile = await steam.get_profile(self._bot.steam_id)
-            logger.info(f'Bot profile: {bot_profile}', extra=self._get_log_extra_data())
+                bot_profile = await steam.get_profile(self._bot.steam_id)
+                logger.info(f'Bot profile: {bot_profile}', extra=extra(self._bot.login))
 
-            # TODO: Remove in future
-            await self.do_something()
+                # TODO: Remove in future
+                await self.do_something()
+        except Exception as ex:
+            logger.error(f'Bot workflow not running by error: {ex}', extra=extra(self._bot.login, traceback()))
 
     async def do_something(self):
         while True:
-            await asyncio.sleep(3)
-            logger.info(f'Bot {self._bot.login} sleeping...', extra=self._get_log_extra_data())
-
-    # TODO: Move to common package
-    def _get_log_extra_data(self) -> dict:
-        return {'account': self._bot.login}
+            await asyncio.sleep(5)
+            logger.info(f'Bot {self._bot.login} sleeping...', extra=extra(self._bot.login))

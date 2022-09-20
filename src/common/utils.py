@@ -23,3 +23,13 @@ def use_thread(func):
         return func(*args, **kwargs)
 
     threading.Thread(target=inner_function, daemon=True).start()
+
+
+def get_log_extra(account: str = None, traceback: str = None) -> dict:
+    extra = {}
+    if account:
+        extra['account'] = account
+    if traceback:
+        extra['traceback'] = traceback
+
+    return extra

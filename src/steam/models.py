@@ -1,10 +1,12 @@
 import json
 import logging
+from traceback import format_exc as traceback
 
 from django.core.validators import FileExtensionValidator
 from django.db import models, DatabaseError
 from django.db.models import QuerySet
 
+from common.utils import get_log_extra as extra
 from settings.models import BotPreferences
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel, ItemModel
@@ -71,8 +73,8 @@ class ItemsFile(models.Model):
         dict_['account_id'] = accounts.get(login=item.bot).id
         try:
             Item.objects.update_or_create(asset_id=item.asset_id, defaults=dict_)
-        except DatabaseError as ex:
-            logger.warning(f'Db exception for {item.asset_id} item', extra={'account': item.bot, 'error': ex})
+        except DatabaseError:
+            logger.error(f'Db exception for {item.asset_id} item', extra=extra(item.bot, traceback()))
 
     def __str__(self):
         return 'Parsed steam items file'

@@ -1,8 +1,10 @@
 import logging
+from traceback import format_exc as traceback
 from typing import Optional, List
 
 from pydantic import ValidationError
 
+from common.utils import get_log_extra as extra
 from .domain.models import ItemModel, ItemsJsonModel
 
 logger = logging.getLogger(__name__)
@@ -30,8 +32,8 @@ class ItemParser:
         model = None
         try:
             model = ItemModel(**item)
-        except ValidationError as ex:
+        except ValidationError:
             logger.warning(f'Parsing validation error for {item["asset_id"]} item',
-                           extra={'account': item['bot'], 'error': ex.errors()[0]})
+                           extra=extra(item['bot'], traceback()))
 
         return model

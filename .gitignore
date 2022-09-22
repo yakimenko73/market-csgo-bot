@@ -139,5 +139,3 @@ elasticsearch/.es_temp_file
 elasticsearch/data
 
 src/static
-src/steam/migrations
-src/settings/migrations

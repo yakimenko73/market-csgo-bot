@@ -9,8 +9,6 @@ services:
     env_file: .env.prod
     volumes:
       - ./data:/data:z
-      - ./src/steam/migrations:/steam/migrations:rw
-      - ./src/settings/migrations:/steam/migrations:rw
     ports:
       - "80:80"
       - "45981:45981"

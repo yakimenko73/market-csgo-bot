@@ -13,4 +13,4 @@ COPY /src .
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-CMD gunicorn --workers 1 --bind $DJANGO_HOST:$DJANGO_PORT settings.wsgi:application
+CMD gunicorn --workers 1 --timeout 90 --log-level=debug --bind $DJANGO_HOST:$DJANGO_PORT settings.wsgi:application

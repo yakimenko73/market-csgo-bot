@@ -25,7 +25,14 @@ def use_thread(func):
     threading.Thread(target=inner_function, daemon=True).start()
 
 
-def get_log_extra(account: str = None, traceback: str = None, request: str = None) -> dict:
+# TODO: Refactor
+def get_log_extra(
+        account: str = None,
+        traceback: str = None,
+        request: str = None,
+        response: str = None,
+        status_code: int = None,
+) -> dict:
     extra = {}
     if account:
         extra['account'] = account
@@ -33,5 +40,9 @@ def get_log_extra(account: str = None, traceback: str = None, request: str = Non
         extra['traceback'] = traceback
     if request:
         extra['request'] = request
+    if response:
+        extra['response'] = response
+    if status_code:
+        extra['status_code'] = status_code
 
     return extra

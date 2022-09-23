@@ -35,9 +35,11 @@ class BotWorkflow:
             async with self._steam_api as steam:
                 logger.info('Bot workflow start successfully', extra=extra(self._bot.login))
 
-                await self._market_api.set_steam_api_key(self._bot.steam_api)
-                await self._market_api.ping()
-                await self._market_api.test()
+                await asyncio.gather(
+                    self._market_api.set_steam_api_key(self._bot.steam_api),
+                    self._market_api.ping(),
+                    self._market_api.test(),
+                )
 
                 await self.work_simulation()
         except Exception as ex:
@@ -45,5 +47,5 @@ class BotWorkflow:
 
     async def work_simulation(self):
         while True:
-            await asyncio.sleep(5)
             logger.info(f'Bot sleeping...', extra=extra(self._bot.login))
+            await asyncio.sleep(5)

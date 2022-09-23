@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'daterangefilter',
     'logs',
     'steam',
+    'market',
 ]
 
 MIDDLEWARE = [
@@ -146,22 +147,15 @@ LOGGING = {
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
-    'filters': {
-        'hide_static_files': {
-            '()': 'settings.logging.filters.SkipStaticFilter'
-        }
-    },
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'filters': ['hide_static_files'],
             'formatter': 'simple'
         },
         'logstash': {
             'level': 'INFO',
             'class': 'settings.logging.handlers.StrTCPLogstashHandler',
-            'filters': ['hide_static_files'],
             'formatter': 'json',
             'host': SERVER_SETTINGS.server_host,
             'port': 50000,

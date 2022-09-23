@@ -2,13 +2,13 @@ import asyncio
 import logging
 from traceback import format_exc as traceback
 
-from aiohttp import ClientSession
-from aiohttp_socks import ProxyConnector
 from django.forms import model_to_dict
 
+from common.domain.models import ProxyCredentials
+from common.http.client import AsyncHttpClient
 from common.utils import get_log_extra as extra
 from steam.api import SteamApi
-from steam.domain.models import ProxyCredentials, SteamCredentials
+from steam.domain.models import SteamCredentials
 from steam.models import Account
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class BotWorkflow:
         dict_ = model_to_dict(self._bot)
         self._proxy_creds = ProxyCredentials.parse_str(self._bot.proxy)
         self._steam_creds = SteamCredentials.parse_obj(dict_).with_guard(**dict_)
-        self._session = ClientSession(connector=ProxyConnector(**self._proxy_creds.dict()))
+        self._session = AsyncHttpClient(self._proxy_creds).session
         self._steam_api = SteamApi(self._steam_creds, self._session)
 
     async def run(self):

@@ -30,12 +30,12 @@ class ELKSettings(BaseSettings):
 @envclass
 @dataclass
 class MarketSettings(BaseSettings):
-    host: str = 'market.csgo.com'
+    host: str = 'https://market.csgo.com'
 
 
-SERVER_SETTINGS = DjangoSettings().from_env('DJANGO')
-ELK_SETTINGS = ELKSettings().from_env('ELK')
-MARKET_SETTINGS = MarketSettings().from_env('MARKET')
+SERVER_SETTINGS: DjangoSettings = DjangoSettings().from_env('DJANGO')
+ELK_SETTINGS: ELKSettings = ELKSettings().from_env('ELK')
+MARKET_SETTINGS: MarketSettings = MarketSettings().from_env('MARKET')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -175,6 +175,10 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'bot': {
+            'handlers': ['logstash', 'console'],
+            'level': 'DEBUG',
+        },
+        'market': {
             'handlers': ['logstash', 'console'],
             'level': 'DEBUG',
         },

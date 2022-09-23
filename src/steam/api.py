@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class SteamApi:
     def __init__(self, steam_creds: SteamCredentials, session: ClientSession):
-        self._bot_name = steam_creds.login
+        self._account = steam_creds.login
         self._session = session
         self._client = SteamClient(
             steam_creds.login,
@@ -37,17 +37,17 @@ class SteamApi:
     async def login(self):
         try:
             await self._client.login()
-            logger.info('Steam login complete', extra=extra(self._bot_name))
+            logger.info('Steam login complete', extra=extra(self._account))
         except InvalidCredentials as ex:
-            logger.error('Invalid steam credentials', extra=extra(self._bot_name))
+            logger.error('Invalid steam credentials', extra=extra(self._account))
             raise ex
         except CaptchaRequired as ex:
-            logger.error('Required captcha for steam login', extra=extra(self._bot_name))
+            logger.error('Required captcha for steam login', extra=extra(self._account))
             raise ex
 
     async def logout(self):
         await self._client.close()
-        logger.info('Steam logout complete', extra=extra(self._bot_name))
+        logger.info('Steam logout complete', extra=extra(self._account))
 
     async def get_profile(self, steam_id: str) -> dict:
         return await self._client.get_profile(steam_id)

@@ -25,11 +25,13 @@ def use_thread(func):
     threading.Thread(target=inner_function, daemon=True).start()
 
 
-def get_log_extra(account: str = None, traceback: str = None) -> dict:
+def get_log_extra(account: str = None, traceback: str = None, request: str = None) -> dict:
     extra = {}
     if account:
         extra['account'] = account
     if traceback:
         extra['traceback'] = traceback
+    if request:
+        extra['request'] = request
 
     return extra

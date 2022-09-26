@@ -1,4 +1,6 @@
+import asyncio
 import threading
+import time
 from enum import Enum
 from typing import Any, List, Tuple
 
@@ -46,3 +48,11 @@ def get_log_extra(
         extra['status_code'] = status_code
 
     return extra
+
+
+async def invoke_forever(coro_fn, interval: float, *args):
+    while True:
+        then = time.time()
+        await coro_fn(*args)
+        elapsed = time.time() - then
+        await asyncio.sleep(interval - elapsed)

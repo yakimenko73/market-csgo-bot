@@ -4,9 +4,10 @@ from traceback import format_exc as traceback
 
 from django.forms import model_to_dict
 
+from bot.contants import MARKET_PING_INTERVAL, MARKET_TEST_INTERVAL
 from common.domain.models import ProxyCredentials
 from common.http.client import AsyncHttpClient
-from common.utils import get_log_extra as extra
+from common.utils import get_log_extra as extra, invoke_forever
 from market.api import MarketApi
 from market.domain.models import MarketCredentials
 from steam.api import SteamApi
@@ -35,17 +36,14 @@ class BotWorkflow:
             async with self._steam_api as steam:
                 logger.info('Bot workflow start successfully', extra=extra(self._bot.login))
 
-                await asyncio.gather(
-                    self._market_api.set_steam_api_key(self._bot.steam_api),
-                    self._market_api.ping(),
-                    self._market_api.test(),
-                )
-
-                await self.work_simulation()
+                await self.run_market_periodic_tasks()
         except Exception as ex:
             logger.error(f'Bot workflow not running by error: {ex}', extra=extra(self._bot.login, traceback()))
 
-    async def work_simulation(self):
-        while True:
-            logger.info(f'Bot sleeping...', extra=extra(self._bot.login))
-            await asyncio.sleep(5)
+    async def run_market_periodic_tasks(self):
+        logger.info('Run market periodic tasks', extra=extra(self._bot.login))
+        await asyncio.gather(
+            self._market_api.set_steam_api_key(self._bot.steam_api),
+            invoke_forever(self._market_api.ping, MARKET_PING_INTERVAL),
+            invoke_forever(self._market_api.test, MARKET_TEST_INTERVAL),
+        )

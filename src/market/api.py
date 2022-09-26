@@ -18,20 +18,40 @@ class MarketApi:
         self._settings = settings.MARKET_SETTINGS
         self._host = self._settings.host
 
-    async def set_steam_api_key(self, steam_key: str):
+    async def set_steam_api_key(self, steam_key: str) -> dict:
         uri = self._host + MarketUrls.SET_STEAM_API_KEY.substitute(key=self._api_key, steam_key=steam_key)
         response = await self._client.get(uri)
         logger.info(f'Set steam api key', extra=await self._extra(response))
 
-    async def ping(self):
+        return await response.json()
+
+    async def ping(self) -> dict:
         uri = self._host + MarketUrls.PING.substitute(key=self._api_key)
         response = await self._client.get(uri)
         logger.info('Sent market ping', extra=await self._extra(response))
 
-    async def test(self):
+        return await response.json()
+
+    async def test(self) -> dict:
         uri = self._host + MarketUrls.TEST.substitute(key=self._api_key)
         response = await self._client.get(uri)
         logger.info('Sent market test', extra=await self._extra(response))
+
+        return await response.json()
+
+    async def get_inventory(self) -> dict:
+        uri = self._host + MarketUrls.GET_INVENTORY.substitute(key=self._api_key)
+        response = await self._client.get(uri)
+        logger.info('Get inventory', extra=await self._extra(response))
+
+        return await response.json()
+
+    async def update_inventory(self) -> dict:
+        uri = self._host + MarketUrls.UPDATE_INVENTORY.substitute(key=self._api_key)
+        response = await self._client.get(uri)
+        logger.info('Update inventory', extra=await self._extra(response))
+
+        return await response.json()
 
     async def _extra(self, response: ClientResponse) -> dict:
         json = await response.json()

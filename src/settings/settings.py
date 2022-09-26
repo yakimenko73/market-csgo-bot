@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'logs',
     'steam',
     'market',
+    'bot',
 ]
 
 MIDDLEWARE = [

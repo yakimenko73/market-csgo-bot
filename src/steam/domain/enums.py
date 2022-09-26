@@ -5,6 +5,7 @@ class Status(BaseEnum):
     New = 65536
     NotAtSteamInv = 131072
     Check = 262144
+    Wait = 51
 
 
 class HoldStatus(BaseEnum):

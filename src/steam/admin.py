@@ -52,8 +52,7 @@ class AccountAdmin(admin.ModelAdmin):
 
     @admin.action(description='Turn off selected accounts')
     def turn_off_bot_account(self, request: WSGIRequest, accounts: QuerySet[Account]):
-        bots = (list(accounts.filter(is_on=True)))
-        self._bot_manager.stop_bots(bots)
+        self._bot_manager.stop_bots(list(accounts.filter(is_on=True)))
 
         accounts.update(is_on=False)
 

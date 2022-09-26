@@ -15,12 +15,7 @@ class BotManager:
         self._tasks: Dict[str, Task] = {}
 
     async def run_bots(self, bots: List[Account]):
-        new_tasks = []
-        for bot in bots:
-            if bot.login not in self._tasks.keys():
-                logger.info('Running bot', extra=extra(bot.login))
-                new_tasks.append(self._create_task(bot))
-
+        new_tasks = [self._create_task(bot) for bot in bots if bot.login not in self._tasks]
         try:
             [await task for task in new_tasks]
         except CancelledError as ex:
@@ -28,7 +23,7 @@ class BotManager:
 
     def stop_bots(self, bots: List[Account]):
         for bot in bots:
-            if bot.login in self._tasks.keys():
+            if bot.login in self._tasks:
                 task = self._tasks[bot.login]
                 if not task.done():
                     logger.info('Stopping bot', extra=extra(bot.login))
@@ -43,5 +38,6 @@ class BotManager:
         self._tasks[bot.login] = task
 
         logger.debug(f'Created new task: {task}')
+        logger.info('Running bot', extra=extra(bot.login))
 
         return task

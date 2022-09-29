@@ -33,7 +33,7 @@ class MarketItem(BaseModel):
     class_id: str = Field(alias='classid')
     instance_id: str = Field(alias='instanceid')
     market_hash_name: str
-    market_price: str
+    market_price: float
     tradable: bool
 
 

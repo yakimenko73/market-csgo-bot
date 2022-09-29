@@ -1,12 +1,13 @@
 import json
 import logging
+from decimal import Decimal
 from traceback import format_exc as traceback
 
-from django.core.validators import FileExtensionValidator
 from django.db import models, DatabaseError
 from django.db.models import QuerySet
 
 from common.utils import get_log_extra as extra
+from common.validators import PERCENTAGE_VALIDATOR, JSON_FILE_VALIDATOR
 from settings.models import BotPreferences
 from .domain.enums import Status, HoldStatus, Place, CorrectName
 from .domain.models import ItemsJsonModel, ItemModel
@@ -48,13 +49,17 @@ class Item(models.Model):
     drive_discount = models.CharField(max_length=30)
     drive_discount_percent = models.CharField(max_length=30)
     correct_name = models.IntegerField(choices=CorrectName.to_list(), default=CorrectName.Yes.value)
+    min_profit = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(10),
+                                     validators=PERCENTAGE_VALIDATOR)
+    max_profit = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(100),
+                                     validators=PERCENTAGE_VALIDATOR)
 
     def __str__(self):
         return self.market_hash_name
 
 
 class ItemsFile(models.Model):
-    file = models.FileField(validators=[FileExtensionValidator(allowed_extensions=["json"])])
+    file = models.FileField(validators=JSON_FILE_VALIDATOR)
 
     def save(self, *args, **kwargs):
         with self.file.open('r') as f:

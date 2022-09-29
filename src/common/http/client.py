@@ -17,7 +17,7 @@ class BaseHttpClient(ABC):
 
 class AsyncHttpClient(BaseHttpClient):
     def __init__(self, proxy: ProxyCredentials = None):
-        self._proxy_connector = None if proxy is None else ProxyConnector(**proxy.dict())
+        self._proxy_connector = None if not proxy else ProxyConnector(**proxy.dict())
         self._session = ClientSession(connector=self._proxy_connector)
 
     @property

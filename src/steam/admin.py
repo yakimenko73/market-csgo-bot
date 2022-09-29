@@ -71,6 +71,8 @@ class AccountItemAdmin(admin.ModelAdmin):
         'hold_date',
         'asset_id',
         'drive_discount',
+        'min_profit',
+        'max_profit',
     )
     list_filter = (
         'place',

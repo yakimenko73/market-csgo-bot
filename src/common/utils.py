@@ -64,17 +64,17 @@ def invoke_forever(interval: float):
     return inner_function
 
 
-def invoke_until(interval: float, expected: Any):
+def invoke_until(interval: float, expected_result: Any):
     def inner_function(coro_func):
         async def wrapper(*args, **kwargs):
             while True:
                 then = time.time()
-                actual = await coro_func(*args, **kwargs)
-                if actual == expected:
+                result = await coro_func(*args, **kwargs)
+                if result == expected_result:
                     break
                 elapsed = time.time() - then
                 await asyncio.sleep(interval - elapsed)
-            return actual
+            return result
 
         return wrapper
 

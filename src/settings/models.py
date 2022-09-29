@@ -1,10 +1,9 @@
 from decimal import Decimal
 
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from preferences.models import Preferences
 
-PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
+from common.validators import PERCENTAGE_VALIDATOR
 
 
 class BotPreferences(Preferences):

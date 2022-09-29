@@ -4,14 +4,14 @@ from typing import List
 
 from asgiref.sync import sync_to_async
 from django.forms import model_to_dict
+from preferences import preferences
 
-from bot.contants import MARKET_PING_INTERVAL, MARKET_TEST_INTERVAL, MARKET_SET_STEAM_API_INTERVAL, \
-    MARKET_UPDATE_INVENTORY_INTERVAL, MARKET_GET_INVENTORY_INTERVAL
+from bot.contants import *
 from common.domain.models import ProxyCredentials
 from common.http.client import AsyncHttpClient
 from common.utils import get_log_extra as extra, invoke_forever, invoke_until
 from market.api import MarketApi
-from market.domain.models import MarketCredentials, MyInventoryResponse
+from market.domain.models import MarketCredentials
 from steam.api import SteamApi
 from steam.domain.enums import Status
 from steam.domain.models import SteamCredentials
@@ -51,8 +51,7 @@ class BotWorkflow:
         await invoke_until(MARKET_GET_INVENTORY_INTERVAL, True)(self._market_api.update_inventory)()
 
         logger.info('Trying to get inventory...', extra=extra(self._bot.login))
-        inventory: MyInventoryResponse = await invoke_until(MARKET_GET_INVENTORY_INTERVAL, True)(
-            self._market_api.get_inventory)()
+        inventory = await invoke_until(MARKET_GET_INVENTORY_INTERVAL, True)(self._market_api.get_inventory)()
 
         await self.update_items_status([item.id for item in inventory.items])
 
@@ -66,9 +65,11 @@ class BotWorkflow:
 
     @sync_to_async
     def update_items_status(self, items_ids: List[str]):
+        prefs = preferences.BotPreferences
         count = Item.objects.filter(
             account=self._bot,
             status=Status.New.value,
-            asset_id__in=items_ids
-        ).update(status=Status.Wait.value)
+            asset_id__in=items_ids,
+        ).update(status=Status.Wait.value, min_profit=prefs.min_profit, max_profit=prefs.max_profit)
+
         logger.info(f'Wait status update successfully for {count} items', extra(self._bot.login))

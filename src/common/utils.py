@@ -50,9 +50,32 @@ def get_log_extra(
     return extra
 
 
-async def invoke_forever(coro_fn, interval: float, *args):
-    while True:
-        then = time.time()
-        await coro_fn(*args)
-        elapsed = time.time() - then
-        await asyncio.sleep(interval - elapsed)
+def invoke_forever(interval: float):
+    def inner_function(coro_func):
+        async def wrapper(*args, **kwargs):
+            while True:
+                then = time.time()
+                await coro_func(*args, **kwargs)
+                elapsed = time.time() - then
+                await asyncio.sleep(interval - elapsed)
+
+        return wrapper
+
+    return inner_function
+
+
+def invoke_until(interval: float, expected: Any):
+    def inner_function(coro_func):
+        async def wrapper(*args, **kwargs):
+            while True:
+                then = time.time()
+                actual = await coro_func(*args, **kwargs)
+                if actual == expected:
+                    break
+                elapsed = time.time() - then
+                await asyncio.sleep(interval - elapsed)
+            return actual
+
+        return wrapper
+
+    return inner_function

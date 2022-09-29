@@ -28,8 +28,8 @@ class AsyncHttpClient(BaseHttpClient):
     def session(self, session: ClientSession):
         self._session = session
 
-    async def get(self, uri) -> ClientResponse:
-        return await self._session.get(uri)
+    async def get(self, uri, params: dict = None) -> ClientResponse:
+        return await self._session.get(uri, params=params)
 
     async def post(self, uri, data) -> ClientResponse:
         return await self._session.post(uri, data=data)

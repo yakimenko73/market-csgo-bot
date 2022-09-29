@@ -139,3 +139,4 @@ elasticsearch/.es_temp_file
 elasticsearch/data
 
 src/static
+src/sandbox.py

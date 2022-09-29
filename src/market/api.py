@@ -5,8 +5,8 @@ from django.conf import settings
 
 from common.http.client import AsyncHttpClient
 from common.utils import get_log_extra as extra
-from market.domain.models import MarketUrls, MarketCredentials, UpdateInventoryResponse, MyInventoryResponse, \
-    SetSteamApiKeyResponse, PingResponse, TestResponse
+from market.domain.enums import MarketApi as MarketUrls
+from market.domain.models import *
 
 logger = logging.getLogger(__name__)
 
@@ -20,36 +20,31 @@ class MarketApi:
         self._host = self._settings.host
 
     async def set_steam_api_key(self, steam_key: str) -> SetSteamApiKeyResponse:
-        uri = self._host + MarketUrls.SET_STEAM_API_KEY.substitute(key=self._api_key, steam_key=steam_key)
-        response = await self._client.get(uri)
+        response = await self._get_api(MarketUrls.SET_STEAM_API_KEY, steam_api_key=steam_key)
         logger.info(f'Set steam api key', extra=await self._extra(response))
 
         return SetSteamApiKeyResponse(**await response.json())
 
     async def ping(self) -> PingResponse:
-        uri = self._host + MarketUrls.PING.substitute(key=self._api_key)
-        response = await self._client.get(uri)
+        response = await self._get_api(MarketUrls.PING)
         logger.info('Sent market ping', extra=await self._extra(response))
 
         return PingResponse(**await response.json())
 
     async def test(self) -> TestResponse:
-        uri = self._host + MarketUrls.TEST.substitute(key=self._api_key)
-        response = await self._client.get(uri)
+        response = await self._get_api(MarketUrls.TEST)
         logger.info('Sent market test', extra=await self._extra(response))
 
         return TestResponse(**await response.json())
 
     async def get_inventory(self) -> MyInventoryResponse:
-        uri = self._host + MarketUrls.GET_INVENTORY.substitute(key=self._api_key)
-        response = await self._client.get(uri)
+        response = await self._get_api(MarketUrls.GET_INVENTORY)
         logger.info('Get inventory', extra=await self._extra(response))
 
         return MyInventoryResponse(**await response.json())
 
     async def update_inventory(self) -> UpdateInventoryResponse:
-        uri = self._host + MarketUrls.UPDATE_INVENTORY.substitute(key=self._api_key)
-        response = await self._client.get(uri)
+        response = await self._get_api(MarketUrls.UPDATE_INVENTORY)
         logger.info('Update inventory', extra=await self._extra(response))
 
         return UpdateInventoryResponse(**await response.json())
@@ -57,3 +52,12 @@ class MarketApi:
     async def _extra(self, response: ClientResponse) -> dict:
         json = await response.json()
         return extra(self._creds.login, request=str(response.url), response=str(json), status_code=response.status)
+
+    async def _get_api(self, api: MarketUrls, **kwargs) -> ClientResponse:
+        return await self._client.get(self._get_uri(api), self._get_params(**kwargs))
+
+    def _get_uri(self, api: MarketUrls) -> str:
+        return self._host + api.value
+
+    def _get_params(self, **kwargs) -> dict:
+        return dict(key=self._api_key, **kwargs)

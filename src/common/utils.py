@@ -2,7 +2,8 @@ import asyncio
 import threading
 import time
 from enum import Enum
-from typing import Any, List, Tuple
+from itertools import islice
+from typing import Any, List, Tuple, Iterable, Iterator
 
 from envclasses import load_env
 
@@ -79,3 +80,8 @@ def invoke_until(interval: float, expected_result: Any):
         return wrapper
 
     return inner_function
+
+
+def to_chunks(iterable: Iterable, size: int) -> Iterator[Tuple[Any, ...]]:
+    iterable = iter(iterable)
+    return iter(lambda: tuple(islice(iterable, size)), ())

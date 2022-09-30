@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from asyncio import Task, CancelledError
+from asyncio import Task
 from typing import List, Dict
 
 from common.utils import get_log_extra as extra
@@ -15,11 +15,7 @@ class BotManager:
         self._tasks: Dict[str, Task] = {}
 
     async def run_bots(self, bots: List[Account]):
-        new_tasks = [self._create_task(bot) for bot in bots if bot.login not in self._tasks]
-        try:
-            [await task for task in new_tasks]
-        except CancelledError as ex:
-            logging.debug(f'Task CancelledError: {ex}')
+        [await task for task in [self._create_task(bot) for bot in bots if bot.login not in self._tasks]]
 
     def stop_bots(self, bots: List[Account]):
         for bot in bots:

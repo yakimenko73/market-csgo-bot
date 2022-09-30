@@ -1,4 +1,5 @@
 import logging
+from typing import Final, Iterable
 
 from aiohttp import ClientResponse
 from django.conf import settings
@@ -9,6 +10,8 @@ from market.domain.enums import MarketUrls
 from market.domain.models import *
 
 logger = logging.getLogger(__name__)
+
+API_KEY_QUERY_PARAM: Final[str] = 'key'
 
 
 class MarketApi:
@@ -47,6 +50,13 @@ class MarketApi:
 
         return UpdateInventoryResponse(**await response.json())
 
+    async def get_items_by_hash_name(self, key: str, hash_names: Iterable[str]):
+        params = {'list_hash_name[]': hash_names, 'key': key}
+        response = await self._get_api(MarketUrls.GET_ITEMS_BY_HASH_NAME, **params)
+        logger.info('Get items by hash names', extra=await self._extra(response))
+
+        return GetItemsByHashNameResponse(**await response.json())
+
     async def _extra(self, response: ClientResponse) -> dict:
         json = await response.json()
         return extra(self._creds.login, request=str(response.url), response=str(json), status_code=response.status)
@@ -58,4 +68,7 @@ class MarketApi:
         return self._settings.host + api.value
 
     def _get_params(self, **kwargs) -> dict:
-        return dict(key=self._creds.api_key, **kwargs)
+        params = dict(**kwargs)
+        if API_KEY_QUERY_PARAM not in params:
+            params[API_KEY_QUERY_PARAM] = self._creds.api_key
+        return params

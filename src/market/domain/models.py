@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Dict
 
 from pydantic import BaseModel, Field
 
@@ -16,12 +16,18 @@ class BaseMarketResponse(BaseModel):
 
 
 class MarketItem(BaseModel):
+    class ItemExtra(BaseModel):
+        percent_success: float
+        average_time: int
+        volume: bool
+        asset: int = None
+        float_: float = Field(alias='float', default=None)
+        phase: str = None
+
     id: str
-    class_id: str = Field(alias='classid')
-    instance_id: str = Field(alias='instanceid')
-    market_hash_name: str
-    market_price: float
-    tradable: bool
+    class_id: int = Field(alias='class')
+    instance: int
+    extra: ItemExtra
 
 
 class MarketSiteStatus(BaseModel):
@@ -49,4 +55,18 @@ class TestResponse(BaseMarketResponse):
 
 
 class MyInventoryResponse(BaseMarketResponse):
-    items: List[MarketItem]
+    class Item(BaseModel):
+        id: str
+        class_id: str = Field(alias='classid')
+        instance_id: str = Field(alias='instanceid')
+        market_hash_name: str
+        market_price: float
+        tradable: bool
+
+    items: List[Item]
+
+
+class GetItemsByHashNameResponse(BaseMarketResponse):
+    currency: str = None
+    data: Dict[str, List[MarketItem]] = None
+    error: str = None

@@ -5,7 +5,7 @@ from django.conf import settings
 
 from common.http.client import AsyncHttpClient
 from common.utils import get_log_extra as extra
-from market.domain.enums import MarketApi as MarketUrls
+from market.domain.enums import MarketUrls
 from market.domain.models import *
 
 logger = logging.getLogger(__name__)
@@ -14,10 +14,8 @@ logger = logging.getLogger(__name__)
 class MarketApi:
     def __init__(self, creds: MarketCredentials, client: AsyncHttpClient):
         self._creds = creds
-        self._api_key = self._creds.api_key
         self._client = client
         self._settings = settings.MARKET_SETTINGS
-        self._host = self._settings.host
 
     async def set_steam_api_key(self, steam_key: str) -> SetSteamApiKeyResponse:
         response = await self._get_api(MarketUrls.SET_STEAM_API_KEY, steam_api_key=steam_key)
@@ -57,7 +55,7 @@ class MarketApi:
         return await self._client.get(self._get_uri(api), self._get_params(**kwargs))
 
     def _get_uri(self, api: MarketUrls) -> str:
-        return self._host + api.value
+        return self._settings.host + api.value
 
     def _get_params(self, **kwargs) -> dict:
-        return dict(key=self._api_key, **kwargs)
+        return dict(key=self._creds.api_key, **kwargs)

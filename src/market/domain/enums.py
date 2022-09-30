@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class MarketApi(Enum):
+class MarketUrls(Enum):
     PING = '/api/v2/ping'
     TEST = '/api/v2/test'
     SET_STEAM_API_KEY = '/api/v2/set-steam-api-key'

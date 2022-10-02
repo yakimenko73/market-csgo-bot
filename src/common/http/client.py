@@ -4,7 +4,7 @@ from typing import Any
 from aiohttp import ClientSession, ClientResponse
 from aiohttp_socks import ProxyConnector
 
-from common.domain.models import ProxyCredentials
+from common.models import ProxyCredentials
 
 
 class BaseHttpClient(ABC):

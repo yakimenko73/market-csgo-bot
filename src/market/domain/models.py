@@ -17,14 +17,15 @@ class BaseMarketResponse(BaseModel):
 
 class MarketItem(BaseModel):
     class ItemExtra(BaseModel):
-        percent_success: float
-        average_time: int
-        volume: bool
+        percent_success: float = None
+        average_time: int = None
+        volume: bool = None
         asset: int = None
         float_: float = Field(alias='float', default=None)
         phase: str = None
 
     id: str
+    price: int
     class_id: int = Field(alias='class')
     instance: int
     extra: ItemExtra

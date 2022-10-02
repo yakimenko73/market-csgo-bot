@@ -6,6 +6,7 @@ from django.conf import settings
 
 from common.http.client import AsyncHttpClient
 from common.utils import get_log_extra as extra
+from market.domain.constants import LOG_MAX_LENGTH
 from market.domain.enums import MarketUrls
 from market.domain.models import *
 
@@ -51,7 +52,7 @@ class MarketApi:
         return UpdateInventoryResponse(**await response.json())
 
     async def get_items_by_hash_name(self, key: str, hash_names: Iterable[str]):
-        params = {'list_hash_name[]': hash_names, 'key': key}
+        params = {'key': key, 'list_hash_name[]': hash_names}
         response = await self._get_api(MarketUrls.GET_ITEMS_BY_HASH_NAME, **params)
         logger.info('Get items by hash names', extra=await self._extra(response))
 
@@ -59,7 +60,12 @@ class MarketApi:
 
     async def _extra(self, response: ClientResponse) -> dict:
         json = await response.json()
-        return extra(self._creds.login, request=str(response.url), response=str(json), status_code=response.status)
+        return extra(
+            self._creds.login,
+            request=str(response.url)[:LOG_MAX_LENGTH],
+            response=str(json)[:LOG_MAX_LENGTH],
+            status_code=response.status
+        )
 
     async def _get_api(self, api: MarketUrls, **kwargs) -> ClientResponse:
         return await self._client.get(self._get_uri(api), self._get_params(**kwargs))

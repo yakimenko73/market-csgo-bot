@@ -10,3 +10,6 @@ admin.site.unregister(Site)
 @admin.register(BotPreferences)
 class PreferenceAdmin(PreferencesAdmin):
     exclude = ['sites']
+
+    def has_add_permission(self, request):
+        return False

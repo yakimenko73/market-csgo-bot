@@ -2,16 +2,17 @@ import asyncio
 import itertools
 import logging
 from asyncio import Task
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Dict
 
 from asgiref.sync import sync_to_async
 from django.forms import model_to_dict
+from django.utils import timezone
 from preferences import preferences
 
 from bot.constants import *
 from common.http.client import AsyncHttpClient
 from common.models import ProxyCredentials
-from common.utils import get_log_extra as extra, invoke_forever, invoke_until, to_chunks
+from common.utils import get_log_extra as extra, invoke_forever, invoke_until, to_chunks, find_index
 from market.api import MarketApi
 from market.domain.constants import GET_ITEMS_BY_HASH_NAME_LIMIT, BAD_KEY_ERROR_MESSAGE
 from market.domain.models import MarketCredentials, GetItemsByHashNameResponse, MarketItem
@@ -65,6 +66,7 @@ class BotWorkflow:
     async def collect_market_prices(self):
         logger.info('Trying to collect market prices...', extra=extra(self._bot.login))
         await self._market_prices_collector.collect_market_prices()
+        await self._update_item_market_properties()
 
     async def run_market_periodic_tasks(self):
         logger.info('Run market periodic tasks', extra=extra(self._bot.login))
@@ -86,6 +88,24 @@ class BotWorkflow:
 
         logger.info(f'Wait status update successfully for {count} items', extra(self._bot.login))
 
+    @sync_to_async
+    def _update_item_market_properties(self):
+        prices = self._market_prices_collector.prices
+        items = Item.objects.filter(market_hash_name__in=prices.keys(), status__in=Status.get_market_statuses())
+        for item in items:
+            data = prices[item.market_hash_name]
+            if item.market_id:
+                item.market_position = find_index(item.market_id, prices)
+
+            item.market_time = timezone.now()
+            item.market_min_price = data[0].price
+            item.market_count = len(data)
+
+        Item.objects.bulk_update(
+            items,
+            fields=['market_time', 'market_position', 'market_min_price', 'market_count']
+        )
+
 
 class MarketPricesCollector:
     def __init__(self, bot: Account, market_api: MarketApi):
@@ -95,7 +115,7 @@ class MarketPricesCollector:
         self._market_keys = []
 
     @property
-    def prices(self):
+    def prices(self) -> Dict[str, List[MarketItem]]:
         return self._prices
 
     async def collect_market_prices(self):
@@ -107,15 +127,12 @@ class MarketPricesCollector:
         tasks = [self._create_task(key, chunk) for key, chunk in zip(self._market_keys, hash_chunks)]
         for task in asyncio.as_completed(tasks):
             response = await task
-            [self._process_response(hash_name, data) for hash_name, data in response.data.items() if response]
+            self._prices = {hash_name: data for hash_name, data in response.data.items() if response}
 
         logger.info(f'Finish collecting prices for {len(self._prices.keys())} items', extra=extra(self._bot.login))
 
     def _create_task(self, key: str, hash_names: Tuple[str]) -> Task:
         return asyncio.create_task(self._call_api(key, hash_names))
-
-    def _process_response(self, hash_name: str, data: List[MarketItem]):
-        self._prices[hash_name] = data[0].price
 
     async def _call_api(self, key: str, hash_names: Tuple[str]) -> GetItemsByHashNameResponse:
         response = await self._market_api.get_items_by_hash_name(key, hash_names)

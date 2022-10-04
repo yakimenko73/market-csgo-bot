@@ -36,7 +36,6 @@ class BotManager:
         task.set_name(bot.login)
         self._tasks[bot.login] = task
 
-        logger.debug(f'Created new task: {task}')
         logger.info('Running bot', extra=extra(bot.login))
 
         return task

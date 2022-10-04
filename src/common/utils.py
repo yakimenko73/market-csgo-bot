@@ -3,7 +3,7 @@ import threading
 import time
 from enum import Enum
 from itertools import islice
-from typing import Any, List, Tuple, Iterable, Iterator
+from typing import Any, List, Tuple, Iterable, Iterator, Optional
 
 from envclasses import load_env
 
@@ -85,3 +85,7 @@ def invoke_until(interval: float, expected_result: Any):
 def to_chunks(iterable: Iterable, size: int) -> Iterator[Tuple[Any, ...]]:
     iterable = iter(iterable)
     return iter(lambda: tuple(islice(iterable, size)), ())
+
+
+def find_index(elem: Any, iterable: Iterable[Any]) -> Optional[int]:
+    return [index if elem == item else None for index, item in iterable][0]

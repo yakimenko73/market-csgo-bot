@@ -16,6 +16,7 @@ from .models import Account, Item, ItemsFile
 HREF_URI_PATTERN = "<a href='{}' target=_blank>{}</a>"
 MARKET_HASH_NAME_PATTERN = "{links} {name}"
 ITEM_PRICE_PATTERN = "<text>{ru_price}₽({usd_price}$)</text>"
+ITEM_MARKET_INFO_PATTERN = "<text>{min_price}({profit}%)/{position}/{count}</text>"
 MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?&sd=asc&s=price&r=&q=&search='
 
 
@@ -62,6 +63,8 @@ class AccountItemAdmin(admin.ModelAdmin):
     list_display = (
         'account',
         'market_name',
+        'market_info',
+        'market_time',
         'google_price',
         'google_time',
         'steam_price',
@@ -110,6 +113,15 @@ class AccountItemAdmin(admin.ModelAdmin):
             usd_price=obj.steam_price_usd
         )
 
+    def market_info(self, obj):
+        return format_html(
+            ITEM_MARKET_INFO_PATTERN,
+            min_price=obj.market_min_price / 100 if obj.market_min_price else '-',
+            profit=obj.market_profit or '-',
+            position=obj.market_position or '-',
+            count=obj.market_count or '-',
+        )
+
     @admin.display(description='Steam time')
     def steam_time_formatted(self, obj):
         return obj.steam_time.strftime('%d %H:%M')
@@ -127,6 +139,7 @@ class AccountItemAdmin(admin.ModelAdmin):
     market_name.admin_order_field = 'market_hash_name'
     google_time.admin_order_field = 'google_drive_time'
     hold_date.admin_order_field = 'hold'
+    market_info.admin_order_field = 'market_profit'
 
 
 admin.site.register(ItemsFile)

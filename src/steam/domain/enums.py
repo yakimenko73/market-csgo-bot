@@ -1,3 +1,5 @@
+from typing import Tuple, Any
+
 from common.utils import BaseEnum
 
 
@@ -6,6 +8,11 @@ class Status(BaseEnum):
     NotAtSteamInv = 131072
     Check = 262144
     Wait = 51
+    Offered = 1001
+
+    @staticmethod
+    def get_market_statuses() -> Tuple[Any, Any]:
+        return Status.Wait.value, Status.Offered.value,
 
 
 class HoldStatus(BaseEnum):

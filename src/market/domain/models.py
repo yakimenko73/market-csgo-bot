@@ -30,6 +30,9 @@ class MarketItem(BaseModel):
     instance: int
     extra: ItemExtra
 
+    def __eq__(self, other: Any) -> bool:
+        return self.id == other if isinstance(other, str) else super(MarketItem, self).__eq__(other)
+
 
 class MarketSiteStatus(BaseModel):
     user_token: bool

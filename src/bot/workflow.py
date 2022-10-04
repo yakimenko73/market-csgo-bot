@@ -14,7 +14,7 @@ from common.models import ProxyCredentials
 from common.utils import get_log_extra as extra, invoke_forever, invoke_until, to_chunks
 from market.api import MarketApi
 from market.domain.constants import GET_ITEMS_BY_HASH_NAME_LIMIT, BAD_KEY_ERROR_MESSAGE
-from market.domain.models import MarketCredentials, GetItemsByHashNameResponse
+from market.domain.models import MarketCredentials, GetItemsByHashNameResponse, MarketItem
 from market.models import Key
 from steam.api import SteamApi
 from steam.domain.enums import Status
@@ -64,9 +64,7 @@ class BotWorkflow:
 
     async def collect_market_prices(self):
         logger.info('Trying to collect market prices...', extra=extra(self._bot.login))
-        prices = await self._market_prices_collector.collect_market_prices()
-
-        logger.info(f'Collecting market prices finish: {prices}', extra=extra(self._bot.login))
+        await self._market_prices_collector.collect_market_prices()
 
     async def run_market_periodic_tasks(self):
         logger.info('Run market periodic tasks', extra=extra(self._bot.login))
@@ -92,38 +90,47 @@ class BotWorkflow:
 class MarketPricesCollector:
     def __init__(self, bot: Account, market_api: MarketApi):
         self._bot = bot
+        self._prices = {}
         self._market_api = market_api
         self._market_keys = []
-        self._market_prices = {}
+
+    @property
+    def prices(self):
+        return self._prices
 
     async def collect_market_prices(self):
         self._market_keys = await self._get_market_keys_cycle()
         hash_names = await self._get_bot_unique_item_hash_names()
         hash_chunks = to_chunks(hash_names, GET_ITEMS_BY_HASH_NAME_LIMIT)
-        tasks = [self._create_task(key, chunk) for key, chunk in zip(self._market_keys, hash_chunks)]
 
+        logger.info(f'Start collecting prices for {len(hash_names)} items', extra=extra(self._bot.login))
+        tasks = [self._create_task(key, chunk) for key, chunk in zip(self._market_keys, hash_chunks)]
         for task in asyncio.as_completed(tasks):
             response = await task
-            for hash_name, data in response.data.items():
-                self._market_prices[hash_name] = data[0].price
+            [self._process_response(hash_name, data) for hash_name, data in response.data.items() if response]
 
-        return self._market_prices
+        logger.info(f'Finish collecting prices for {len(self._prices.keys())} items', extra=extra(self._bot.login))
 
     def _create_task(self, key: str, hash_names: Tuple[str]) -> Task:
         return asyncio.create_task(self._call_api(key, hash_names))
 
+    def _process_response(self, hash_name: str, data: List[MarketItem]):
+        self._prices[hash_name] = data[0].price
+
     async def _call_api(self, key: str, hash_names: Tuple[str]) -> GetItemsByHashNameResponse:
         response = await self._market_api.get_items_by_hash_name(key, hash_names)
         if await self._has_error(key, response):
-            await self._find_working_key(hash_names)
+            response = await self._find_working_key(hash_names)
         return response
 
     async def _find_working_key(self, hash_names: Tuple[str]):
+        response = None
         for key in self._market_keys:
             logger.info(f'Switch to another key: {key}', extra=extra(self._bot.login))
             response = await self._market_api.get_items_by_hash_name(key, hash_names)
             if not await self._has_error(key, response):
                 break
+        return response
 
     async def _has_error(self, key: str, response: GetItemsByHashNameResponse) -> bool:
         bad_key_error = response.error == BAD_KEY_ERROR_MESSAGE

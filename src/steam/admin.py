@@ -18,7 +18,7 @@ MARKET_HASH_NAME_PATTERN = "{links} {name}"
 ITEM_PRICE_PATTERN = "<text>₽{ru_price}(${usd_price})</text>"
 ITEM_MARKET_INFO_PATTERN = "<text>{min_price}({profit}%)/{position}/{count}</text>"
 ITEM_EXPECTED_PRICES_PATTERN = "<text>{min_price}/{max_price}</text>"
-MARKET_LINK = f'https://{settings.MARKET_SETTINGS.host}/?&sd=asc&s=price&r=&q=&search='
+MARKET_LINK = f'{settings.MARKET_SETTINGS.host}/?&sd=asc&s=price&r=&q=&search='
 
 
 @admin.register(Account)

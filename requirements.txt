@@ -5,6 +5,7 @@ asgiref==3.5.2
 async-timeout==4.0.2
 asyncsteampy==0.1.2
 attrs==22.1.0
+Babel==2.10.3
 backports.zoneinfo==0.2.1
 beautifulsoup4==4.11.1
 charset-normalizer==2.1.1
@@ -13,6 +14,7 @@ diff-match-patch==20200713
 Django==4.1
 django-daterangefilter @ git+https://github.com/yakimenko73/django-daterange-filter@84b65862f874494080bde418b98040a792195060
 django-grappelli==3.0.3
+django-money==3.0.0
 django-preferences==1.0.0
 envclasses==0.2.8
 et-xmlfile==1.1.0
@@ -25,10 +27,12 @@ multidict==6.0.2
 mypy-extensions==0.4.3
 odfpy==1.4.1
 openpyxl==3.0.10
+py-moneyed==2.0
 pyasn1==0.4.8
 pydantic==1.10.2
 python-logstash==0.4.8
 python-socks==2.0.3
+pytz==2022.2.1
 PyYAML==6.0
 rsa==4.9
 soupsieve==2.3.2.post1

@@ -67,6 +67,7 @@ class BotWorkflow:
         logger.info('Trying to collect market prices...', extra=extra(self._bot.login))
         await self._market_prices_collector.collect_market_prices()
         await self._update_item_market_properties()
+        await self._update_item_market_prices()
 
     async def run_market_periodic_tasks(self):
         logger.info('Run market periodic tasks', extra=extra(self._bot.login))
@@ -101,10 +102,14 @@ class BotWorkflow:
             item.market_min_price = data[0].price
             item.market_count = len(data)
 
-        Item.objects.bulk_update(
-            items,
-            fields=['market_time', 'market_position', 'market_min_price', 'market_count']
-        )
+        Item.objects.bulk_update(items, fields=['market_time', 'market_position', 'market_min_price', 'market_count'])
+
+    @sync_to_async
+    def _update_item_market_prices(self):
+        prices = self._market_prices_collector.prices
+        items = Item.objects.filter(market_hash_name__in=prices.keys(), status__in=Status.get_market_statuses())
+        [item.calculate_expected_prices() for item in items]
+        Item.objects.bulk_update(items, fields=['expected_min_price', 'expected_max_price'])
 
 
 class MarketPricesCollector:

@@ -5,6 +5,7 @@ from traceback import format_exc as traceback
 
 from django.db import models, DatabaseError
 from django.db.models import QuerySet
+from djmoney.models.fields import MoneyField
 
 from common.utils import get_log_extra as extra
 from common.validators import PERCENTAGE_VALIDATOR, JSON_FILE_VALIDATOR
@@ -59,9 +60,18 @@ class Item(models.Model):
                                      validators=PERCENTAGE_VALIDATOR)
     max_profit = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(100),
                                      validators=PERCENTAGE_VALIDATOR)
+    expected_min_price = MoneyField(max_digits=14, decimal_places=2, null=True, blank=True, default_currency='RUB')
+    expected_max_price = MoneyField(max_digits=14, decimal_places=2, null=True, blank=True, default_currency='RUB')
 
     def __str__(self):
         return self.market_hash_name
+
+    def calculate_expected_prices(self):
+        self.expected_min_price = self.google_price_usd + self._get_profit_value(self.min_profit)
+        self.expected_max_price = self.google_price_usd + self._get_profit_value(self.max_profit)
+
+    def _get_profit_value(self, percent: Decimal) -> float:
+        return self.google_price_usd / 100 * float(percent)
 
 
 class ItemsFile(models.Model):

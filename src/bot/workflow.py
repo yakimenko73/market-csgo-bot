@@ -132,7 +132,7 @@ class MarketPricesCollector:
         tasks = [self._create_task(key, chunk) for key, chunk in zip(self._market_keys, hash_chunks)]
         for task in asyncio.as_completed(tasks):
             response = await task
-            self._prices = {hash_name: data for hash_name, data in response.data.items() if response}
+            self._prices.update({hash_name: data for hash_name, data in response.data.items() if response})
 
         logger.info(f'Finish collecting prices for {len(self._prices.keys())} items', extra=extra(self._bot.login))
 

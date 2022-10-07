@@ -2,6 +2,7 @@ import asyncio
 import threading
 import time
 from enum import Enum
+from functools import lru_cache
 from itertools import islice
 from typing import Any, List, Tuple, Iterable, Iterator, Optional
 
@@ -89,3 +90,8 @@ def to_chunks(iterable: Iterable, size: int) -> Iterator[Tuple[Any, ...]]:
 
 def find_index(elem: Any, iterable: Iterable[Any]) -> Optional[int]:
     return [index if elem == item else None for index, item in iterable][0]
+
+
+@lru_cache(maxsize=4096)
+def to_rub(amount: float, currency_rate: float, decimal: int) -> float:
+    return round(amount * currency_rate, decimal)

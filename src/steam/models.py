@@ -6,8 +6,9 @@ from traceback import format_exc as traceback
 from django.db import models, DatabaseError
 from django.db.models import QuerySet
 from djmoney.models.fields import MoneyField
+from preferences import preferences
 
-from common.utils import get_log_extra as extra
+from common.utils import get_log_extra as extra, to_rub
 from common.validators import PERCENTAGE_VALIDATOR, JSON_FILE_VALIDATOR
 from settings.models import BotPreferences
 from .domain.enums import Status, HoldStatus, Place, CorrectName
@@ -67,11 +68,16 @@ class Item(models.Model):
         return self.market_hash_name
 
     def calculate_expected_prices(self):
-        self.expected_min_price = self.google_price_usd + self._get_profit_value(self.min_profit)
-        self.expected_max_price = self.google_price_usd + self._get_profit_value(self.max_profit)
+        self.expected_min_price = to_rub(self._get_expected_price(self.min_profit), self._get_currency_rate(), 2)
+        self.expected_max_price = to_rub(self._get_expected_price(self.max_profit), self._get_currency_rate(), 2)
 
-    def _get_profit_value(self, percent: Decimal) -> float:
-        return self.google_price_usd / 100 * float(percent)
+    def _get_expected_price(self, profit: Decimal) -> float:
+        profit_percent = self.google_price_usd / 100 * float(profit)
+        return self.google_price_usd + profit_percent
+
+    @staticmethod
+    def _get_currency_rate() -> float:
+        return preferences.BotPreferences.currency_rate
 
 
 class ItemsFile(models.Model):

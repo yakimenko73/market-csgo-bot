@@ -1,5 +1,4 @@
 import asyncio
-from decimal import Decimal
 
 from daterangefilter.filters import DateRangeFilter
 from django.conf import settings
@@ -10,14 +9,14 @@ from django.utils.html import format_html_join, format_html
 from preferences import preferences
 
 from bot.manager import BotManager
-from common.utils import use_thread
+from common.utils import use_thread, to_rub
 from .models import Account, Item, ItemsFile
 
 HREF_URI_PATTERN = "<a href='{}' target=_blank>{}</a>"
 MARKET_HASH_NAME_PATTERN = "{links} {name}"
 ITEM_PRICE_PATTERN = "<text>₽{ru_price}(${usd_price})</text>"
 ITEM_MARKET_INFO_PATTERN = "<text>{min_price}({profit}%)/{position}/{count}</text>"
-ITEM_EXPECTED_PRICES_PATTERN = "<text>{min_price}/{max_price}</text>"
+ITEM_SLASH_PATTERN = "<text>{left}/{right}</text>"
 MARKET_LINK = f'{settings.MARKET_SETTINGS.host}/?&sd=asc&s=price&r=&q=&search='
 
 
@@ -62,31 +61,31 @@ class AccountAdmin(admin.ModelAdmin):
 @admin.register(Item)
 class AccountItemAdmin(admin.ModelAdmin):
     list_display = (
+        'asset_id',
         'account',
         'market_name',
         'market_info',
-        'market_time',
+        'profits',
+        'prices',
         'google_price',
-        'google_time',
         'steam_price',
-        'steam_time_formatted',
+        'drive_discount',
         'status',
         'place',
         'hold_date',
-        'asset_id',
-        'drive_discount',
-        'min_profit',
-        'max_profit',
-        'expected_prices',
+        'market_time_formatted',
+        'google_time',
+        'steam_time_formatted',
     )
     list_filter = (
+        'account',
         'place',
         'correct_name',
         'status',
         'hold_status',
         ('google_drive_time', DateRangeFilter),
         ('hold', DateRangeFilter),
-        'account',
+        ('market_time', DateRangeFilter),
     )
     search_fields = (
         'account__login',
@@ -104,32 +103,39 @@ class AccountItemAdmin(admin.ModelAdmin):
     def google_price(self, obj):
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=round(obj.google_price_usd * preferences.BotPreferences.currency_rate, 2),
+            ru_price=to_rub(obj.google_price_usd, self._get_currency_rate(), 2),
             usd_price=obj.google_price_usd
         )
 
     def steam_price(self, obj):
         return format_html(
             ITEM_PRICE_PATTERN,
-            ru_price=round(obj.steam_price_usd * Decimal(preferences.BotPreferences.currency_rate), 2),
+            ru_price=to_rub(float(obj.google_price_usd), self._get_currency_rate(), 2),
             usd_price=obj.steam_price_usd
         )
 
     def market_info(self, obj):
         return format_html(
             ITEM_MARKET_INFO_PATTERN,
-            min_price=obj.market_min_price / 100 if obj.market_min_price else '-',
+            min_price=obj.market_min_price or '-',
             profit=obj.market_profit or '-',
             position=obj.market_position or '-',
             count=obj.market_count or '-',
         )
 
-    def expected_prices(self, obj):
+    def prices(self, obj):
         return format_html(
-            ITEM_EXPECTED_PRICES_PATTERN,
-            min_price=obj.expected_min_price.amount if obj.expected_min_price else '-',
-            max_price=obj.expected_max_price.amount if obj.expected_max_price else '-',
+            ITEM_SLASH_PATTERN,
+            left=obj.expected_min_price.amount if obj.expected_min_price else '-',
+            right=obj.expected_max_price.amount if obj.expected_max_price else '-',
         )
+
+    def profits(self, obj):
+        return format_html(ITEM_SLASH_PATTERN, left=obj.min_profit, right=obj.max_profit)
+
+    @staticmethod
+    def _get_currency_rate() -> float:
+        return preferences.BotPreferences.currency_rate
 
     @admin.display(description='Steam time')
     def steam_time_formatted(self, obj):
@@ -137,6 +143,10 @@ class AccountItemAdmin(admin.ModelAdmin):
 
     def google_time(self, obj):
         return obj.google_drive_time.strftime('%d %H:%M')
+
+    @admin.display(description='Market time')
+    def market_time_formatted(self, obj):
+        return obj.market_time.strftime('%d %H:%M') if obj.market_time else None
 
     @admin.display(description='Hold')
     def hold_date(self, obj):
@@ -147,9 +157,11 @@ class AccountItemAdmin(admin.ModelAdmin):
     google_price.admin_order_field = 'google_price_usd'
     market_name.admin_order_field = 'market_hash_name'
     google_time.admin_order_field = 'google_drive_time'
+    market_time_formatted.admin_order_field = 'market_time'
     hold_date.admin_order_field = 'hold'
     market_info.admin_order_field = 'market_profit'
-    expected_prices.admin_order_field = 'google_price'
+    prices.admin_order_field = 'google_price'
+    profits.admin_order_field = 'min_profit'
 
 
 admin.site.register(ItemsFile)

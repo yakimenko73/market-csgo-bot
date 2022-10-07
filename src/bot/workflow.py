@@ -66,13 +66,14 @@ class BotWorkflow:
     async def collect_market_prices(self):
         logger.info('Trying to collect market prices...', extra=extra(self._bot.login))
         await self._market_prices_collector.collect_market_prices()
-        await self._update_item_market_properties()
+        await self._update_item_market_info()
         await self._update_item_market_prices()
 
     async def run_market_periodic_tasks(self):
         logger.info('Run market periodic tasks', extra=extra(self._bot.login))
         await asyncio.gather(
             invoke_forever(MARKET_UPDATE_INVENTORY_INTERVAL)(self.update_steam_inventory)(),
+            invoke_forever(MARKET_COLLECTING_PRICES_INTERVAL)(self.collect_market_prices)(),
             invoke_forever(MARKET_PING_INTERVAL)(self._market_api.ping)(),
             invoke_forever(MARKET_TEST_INTERVAL)(self._market_api.test)(),
         )
@@ -90,17 +91,16 @@ class BotWorkflow:
         logger.info(f'Wait status update successfully for {count} items', extra(self._bot.login))
 
     @sync_to_async
-    def _update_item_market_properties(self):
+    def _update_item_market_info(self):
         prices = self._market_prices_collector.prices
         items = Item.objects.filter(market_hash_name__in=prices.keys(), status__in=Status.get_market_statuses())
         for item in items:
-            data = prices[item.market_hash_name]
             if item.market_id:
                 item.market_position = find_index(item.market_id, prices)
 
             item.market_time = timezone.now()
-            item.market_min_price = data[0].price
-            item.market_count = len(data)
+            item.market_min_price = self._market_prices_collector.get_item_min_price(item.market_hash_name) / 100
+            item.market_count = len(prices[item.market_hash_name])
 
         Item.objects.bulk_update(items, fields=['market_time', 'market_position', 'market_min_price', 'market_count'])
 
@@ -135,6 +135,9 @@ class MarketPricesCollector:
             self._prices.update({hash_name: data for hash_name, data in response.data.items() if response})
 
         logger.info(f'Finish collecting prices for {len(self._prices.keys())} items', extra=extra(self._bot.login))
+
+    def get_item_min_price(self, hash_name: str) -> float:
+        return self._prices[hash_name][0].price
 
     def _create_task(self, key: str, hash_names: Tuple[str]) -> Task:
         return asyncio.create_task(self._call_api(key, hash_names))

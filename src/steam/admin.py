@@ -126,12 +126,12 @@ class AccountItemAdmin(admin.ModelAdmin):
     def prices(self, obj):
         return format_html(
             ITEM_SLASH_PATTERN,
-            left=obj.expected_min_price.amount if obj.expected_min_price else '-',
-            right=obj.expected_max_price.amount if obj.expected_max_price else '-',
+            left=f'₽{obj.expected_min_price.amount}' if obj.expected_min_price else '-',
+            right=f'₽{obj.expected_max_price.amount}' if obj.expected_max_price else '-',
         )
 
     def profits(self, obj):
-        return format_html(ITEM_SLASH_PATTERN, left=obj.min_profit, right=obj.max_profit)
+        return format_html(ITEM_SLASH_PATTERN, left=f'{obj.min_profit}%', right=f'{obj.max_profit}%')
 
     @staticmethod
     def _get_currency_rate() -> float:

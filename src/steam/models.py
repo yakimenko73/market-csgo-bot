@@ -72,8 +72,8 @@ class Item(models.Model):
         self.expected_max_price = to_rub(self._get_expected_price(self.max_profit), self._get_currency_rate(), 2)
 
     def _get_expected_price(self, profit: Decimal) -> float:
-        profit_percent = self.google_price_usd / 100 * float(profit)
-        return self.google_price_usd + profit_percent
+        profit_amount = self.google_price_usd / 100 * float(profit)
+        return self.google_price_usd + profit_amount
 
     @staticmethod
     def _get_currency_rate() -> float:

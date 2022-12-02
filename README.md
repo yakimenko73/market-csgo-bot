@@ -1,8 +1,20 @@
-# tm-bot
+# <p align="center">Market csgo bot</p>
 
-## Getting Started
+[![Pray for Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://stand-with-ukraine.pp.ua)
+[![Licence](https://img.shields.io/github/license/yakimenko73/market-csgo-bot)](https://github.com/yakimenko73/market-csgo-bot/blob/master/LICENSE)
+[![Code factor](https://www.codefactor.io/repository/github/yakimenko73/market-csgo-bot/badge)](https://www.codefactor.io/repository/github/yakimenko73/market-csgo-bot)
 
-This tutorial will help you run server locally
+## What is it?
+
+Django app for managing and launching trading bots on `market.csgo`
+
+### Built With
+
+* [Python 3.x](https://www.python.org/)
+* [Pydantic](https://github.com/pydantic/pydantic)
+* [ELK](https://www.elastic.co/what-is/elk-stack)
+
+## Getting started
 
 ### Prerequisites
 
@@ -14,7 +26,7 @@ official [docker installation documentation](https://docs.docker.com/compose/ins
 Clone the repo
 
    ```sh
-   git clone https://github.com/athlone-net/tm-bot.git
+   git clone https://github.com/yakimenko73/market-csgo-bot.git
    ```
 
 Run with `docker-compose`

@@ -13,6 +13,7 @@ Django app for managing and launching trading bots on `market.csgo`
 * [Python 3.x](https://www.python.org/)
 * [Pydantic](https://github.com/pydantic/pydantic)
 * [ELK](https://www.elastic.co/what-is/elk-stack)
+* [Nginx](https://www.nginx.com/)
 
 ## Getting started
 

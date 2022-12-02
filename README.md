@@ -2,6 +2,7 @@
 
 [![Pray for Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://stand-with-ukraine.pp.ua)
 [![Licence](https://img.shields.io/github/license/yakimenko73/market-csgo-bot)](https://github.com/yakimenko73/market-csgo-bot/blob/master/LICENSE)
+[![Deploy](https://github.com/yakimenko73/market-csgo-bot/actions/workflows/docker-image.yml/badge.svg)](https://github.com/yakimenko73/market-csgo-bot/actions/workflows/docker-image.yml)
 [![Code factor](https://www.codefactor.io/repository/github/yakimenko73/market-csgo-bot/badge)](https://www.codefactor.io/repository/github/yakimenko73/market-csgo-bot)
 
 ## What is it?
